@@ -1,43 +1,17 @@
-# typescript-on-browser-starter
-[![Netlify Status](https://api.netlify.com/api/v1/badges/4cf13290-0bf6-4e80-a86e-7dd0d5371a5a/deploy-status)](https://app.netlify.com/sites/typescript-on-browser-starter/deploys)
+# Razer Snake
 
-Starter for TypeScript on Web Browser
+Snake game for Razer Chroma keyboards.
 
-## Purpose
-For users who wants to try TypeScript on Web Browser easily and stress free
+## How to run
 
-## Feature
-* Simple as possible
-* Source map
-* Hot reload
-
-## Quick Start
-
-```bash
-# You can change app name
-APP_NAME="myapp"
-git clone https://github.com/nwtgck/typescript-on-browser-starter.git $APP_NAME && \
-cd $APP_NAME && \
-rm -rf .git && \
-sed -i '' "s/typescript-on-browser-starter/${APP_NAME}/" package.json && \
-sed -i '' "s/Starter for TypeScript on Web Browser/${APP_NAME}/" package.json && \
-echo -e "# $APP_NAME" > README.md && \
-sed -i ''  "s/2019/$(date -u "+%Y")/" LICENSE  && \
-npm i
-```
-
-## How to change
-
-First, you can serve a develop server as follows.
+Start a development server with.
 
 ```bash
 npm install
-npm run serve
+npm run dev
 ```
 
 Then, you can access to <http://localhost:8080/>, which will be loaded automatically if file changes detected.
-
-You can modify [src/index.ts](src/index.ts) as you want.
 
 ## Build
 
