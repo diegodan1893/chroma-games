@@ -2,6 +2,8 @@ import { Vector2 } from "../math/Vector2"
 import { Entity } from "./Entity"
 import { SnakeBoard } from "./SnakeBoard"
 
+const SNAKE_COLOR = 0x00ff00
+
 enum Direction {
 	None,
 	Up,
@@ -18,7 +20,28 @@ class SnakeBlock implements Entity {
 		private board: SnakeBoard,
 		private position: Vector2,
 		private prev?: SnakeBlock
-	) {}
+	) {
+		if (!prev) {
+			// This is the head, handle input
+			document.addEventListener("keydown", (e) => {
+				switch (e.key) {
+					case "ArrowUp":
+						this.direction = Direction.Up
+						break
+					case "ArrowDown":
+						this.direction = Direction.Down
+						break
+					case "ArrowRight":
+						this.direction = Direction.Right
+						break
+					case "ArrowLeft":
+						this.direction = Direction.Left
+					default:
+						break
+				}
+			})
+		}
+	}
 
 	update() {
 		const newPosition = { x: this.position.x, y: this.position.y }
@@ -65,12 +88,20 @@ class SnakeBlock implements Entity {
 		}
 	}
 
+	draw(screen: number[][]) {
+		screen[this.position.y][this.position.x] = SNAKE_COLOR
+
+		if (this.next) {
+			this.next.draw(screen)
+		}
+	}
+
 	handleCollision(entity: Entity) {
 		this.board.loseGame()
 	}
 
 	grow(length: number) {
-		if (length == 0) {
+		if (length <= 0) {
 			return
 		}
 
@@ -88,11 +119,15 @@ export class Snake implements Entity {
 
 	constructor(private board: SnakeBoard, position: Vector2, length: number) {
 		this.head = new SnakeBlock(board, position, undefined)
-		this.grow(length)
+		this.grow(length - 1)
 	}
 
 	update() {
 		this.head.update()
+	}
+
+	draw(screen: number[][]) {
+		this.head.draw(screen)
 	}
 
 	handleCollision(entity: Entity) {

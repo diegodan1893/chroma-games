@@ -24,7 +24,7 @@ const main = async () => {
 	})
 
 	if (success) {
-		const snakeBoard = new SnakeBoard(11, 4)
+		const snakeBoard = new SnakeBoard(chroma, 11, 4, 2, 1)
 		snakeBoard.startGame()
 	}
 }

@@ -1,3 +1,5 @@
+import { filledMatrix } from "../math/Matrix"
+
 const RAZER_CHROMA_URI = "http://localhost:54235/razer/chromasdk"
 
 interface ChromaInitOptions {
@@ -66,6 +68,25 @@ export class Chroma {
 
 		await this.request({ method: "DELETE" })
 		clearInterval(this.interval!)
+	}
+
+	async drawKeyboard(offsetX: number, offsetY: number, image: number[][]) {
+		const keyboard = filledMatrix(22, 6, 0)
+
+		image.forEach((row, y) =>
+			row.forEach(
+				(color, x) => (keyboard[y + offsetY][x + offsetX] = color)
+			)
+		)
+
+		await this.request({
+			path: "/keyboard",
+			method: "PUT",
+			body: {
+				effect: "CHROMA_CUSTOM",
+				param: keyboard,
+			},
+		})
 	}
 
 	async request(options: RequestOptions) {
