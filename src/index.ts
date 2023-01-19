@@ -1,18 +1,32 @@
-// (base: https://www.typescriptlang.org/play/)
+import { Chroma } from "./chroma/Chroma"
+import { SnakeBoard } from "./snake/SnakeBoard"
 
-class Greeter {
-	greeting: string
-	constructor(message: string) {
-		this.greeting = message
-	}
-	greet(): string {
-		return `Hello, ${this.greeting}`
+const main = async () => {
+	const body = JSON.stringify({
+		title: "Razer Snake",
+		description: "Snake Game for Razer Chroma Keyboards",
+		author: {
+			name: "Diego Iáñez Ávila",
+			contact: "https://github.com/diegodan1893",
+		},
+		device_supported: ["keyboard"],
+		category: "game",
+	})
+
+	const chroma = new Chroma()
+	const success = await chroma.init({
+		title: "Razer Snake",
+		description: "Snake Game for Razer Chroma Keyboards",
+		authorName: "Diego Iáñez Ávila",
+		authorContact: "https://github.com/diegodan1893",
+		supportedDevices: ["keyboard"],
+		category: "game",
+	})
+
+	if (success) {
+		const snakeBoard = new SnakeBoard(11, 4)
+		snakeBoard.startGame()
 	}
 }
 
-const greeter = new Greeter("world")
-
-const button = document.getElementById("myButton")!
-button.onclick = () => {
-	alert(greeter.greet())
-}
+main()
