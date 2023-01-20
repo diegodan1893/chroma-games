@@ -3,9 +3,11 @@ import { Chroma } from "../chroma/Chroma"
 import { Vector2 } from "../math/Vector2"
 import { Entity } from "./Entity"
 import { Snake } from "./Snake"
+import { Food } from "./Food"
 
 export class SnakeBoard {
 	private entities: Entity[]
+	private interval?: ReturnType<typeof setTimeout>
 
 	constructor(
 		private chroma: Chroma,
@@ -44,15 +46,18 @@ export class SnakeBoard {
 	startGame() {
 		this.entities = [
 			new Snake(this, { x: 1, y: Math.floor(this.height / 2) }, 3),
+			new Food(this),
 		]
 
-		setInterval(async () => {
+		this.interval = setInterval(async () => {
 			this.update()
 			this.draw()
 		}, 150)
 	}
 
 	loseGame() {
-		console.log("game over")
+		if (this.interval) {
+			clearInterval(this.interval)
+		}
 	}
 }

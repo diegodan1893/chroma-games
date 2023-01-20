@@ -18,6 +18,7 @@ class SnakeBlock implements Entity {
 
 	constructor(
 		private board: SnakeBoard,
+		private snake: Snake,
 		private position: Vector2,
 		private prev?: SnakeBlock
 	) {
@@ -80,7 +81,7 @@ class SnakeBlock implements Entity {
 			const collision = this.board.query(newPosition)
 
 			if (collision) {
-				collision.handleCollision(this)
+				collision.handleCollision(this.snake)
 			}
 		}
 
@@ -118,10 +119,15 @@ class SnakeBlock implements Entity {
 
 		if (this.next) {
 			this.next.grow(length)
+		} else {
+			this.next = new SnakeBlock(
+				this.board,
+				this.snake,
+				this.position,
+				this
+			)
+			this.next.grow(length - 1)
 		}
-
-		this.next = new SnakeBlock(this.board, this.position, this)
-		this.next.grow(length - 1)
 	}
 
 	private getNextPosition(direction: Direction): Vector2 {
@@ -159,7 +165,7 @@ export class Snake implements Entity {
 	private head: SnakeBlock
 
 	constructor(private board: SnakeBoard, position: Vector2, length: number) {
-		this.head = new SnakeBlock(board, position, undefined)
+		this.head = new SnakeBlock(board, this, position, undefined)
 		this.grow(length - 1)
 	}
 
