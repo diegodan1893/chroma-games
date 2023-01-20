@@ -59,6 +59,7 @@ class SnakeBlock implements Entity {
 	private next?: SnakeBlock
 	private direction: Direction = Direction.None
 	private inputBuffer?: InputBuffer
+	private alive: boolean
 
 	constructor(
 		private board: SnakeBoard,
@@ -70,16 +71,18 @@ class SnakeBlock implements Entity {
 			// This is the head, handle input
 			this.inputBuffer = new InputBuffer(3)
 		}
+
+		this.alive = true
 	}
 
 	update() {
+		this.processInput()
+
+		if (this.next) {
+			this.next.update()
+		}
+
 		if (this.snake.alive) {
-			this.processInput()
-
-			if (this.next) {
-				this.next.update()
-			}
-
 			const currentDirection = this.direction
 
 			if (this.prev) {
@@ -103,11 +106,20 @@ class SnakeBlock implements Entity {
 			}
 
 			this.position = newPosition
+		} else if (this.alive) {
+			// Dead animation
+			if (this.prev) {
+				this.alive = this.prev.alive
+				console.log(this.alive)
+			} else {
+				// This is the head
+				this.alive = false
+			}
 		}
 	}
 
 	draw(screen: number[][]) {
-		screen[this.position.y][this.position.x] = this.snake.alive
+		screen[this.position.y][this.position.x] = this.alive
 			? ALIVE_SNAKE_COLOR
 			: DEAD_SNAKE_COLOR
 
