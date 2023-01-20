@@ -1,7 +1,7 @@
 {
-  "name": "typescript-on-browser-starter",
+  "name": "razer-snake",
   "version": "0.1.0-SNAPSHOT",
-  "description": "Starter for TypeScript on Web Browser",
+  "description": "Snake Game for Razer Chroma keyboards",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "open-cli http://localhost:8080/ && webpack-cli serve --mode development",
@@ -11,9 +11,12 @@
   },
   "keywords": [
     "TypeScript",
-    "Browser"
+    "Browser",
+    "Snake",
+    "Razer",
+    "Razer Chroma"
   ],
-  "author": "Ryo Ota <nwtgck@nwtgck.org> (https://github.com/nwtgck)",
+  "author": "Diego Iáñez Ávila (https://github.com/diegodan1893)",
   "license": "MIT",
   "devDependencies": {
     "babel-core": "^6.26.3",
