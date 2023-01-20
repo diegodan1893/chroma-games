@@ -24,37 +24,113 @@ class SnakeBlock implements Entity {
 		if (!prev) {
 			// This is the head, handle input
 			document.addEventListener("keydown", (e) => {
+				let newDirection = this.direction
+
 				switch (e.key) {
 					case "ArrowUp":
-						this.direction = Direction.Up
+						newDirection = Direction.Up
 						break
 					case "ArrowDown":
-						this.direction = Direction.Down
+						newDirection = Direction.Down
 						break
 					case "ArrowRight":
-						this.direction = Direction.Right
+						newDirection = Direction.Right
 						break
 					case "ArrowLeft":
-						this.direction = Direction.Left
+						newDirection = Direction.Left
 					default:
 						break
+				}
+
+				// Don't allow the snake to crash into itself by reversing its
+				// movement
+				const nextPosition = this.getNextPosition(newDirection)
+
+				if (
+					!this.next ||
+					this.next.position.x !== nextPosition.x ||
+					this.next.position.y !== nextPosition.y
+				) {
+					this.direction = newDirection
 				}
 			})
 		}
 	}
 
 	update() {
-		const newPosition = { x: this.position.x, y: this.position.y }
+		if (this.next) {
+			this.next.update()
+		}
+
 		const currentDirection = this.direction
 
 		if (this.prev) {
 			this.direction = this.prev.direction
 		}
 
-		switch (currentDirection) {
+		if (currentDirection === Direction.None) {
+			// If the snake is not moving, don't test for collisions
+			return
+		}
+
+		const newPosition = this.getNextPosition(currentDirection)
+
+		if (!this.prev) {
+			// This is the head, check for collisions
+			const collision = this.board.query(newPosition)
+
+			if (collision) {
+				collision.handleCollision(this)
+			}
+		}
+
+		this.position = newPosition
+	}
+
+	draw(screen: number[][]) {
+		screen[this.position.y][this.position.x] = SNAKE_COLOR
+
+		if (this.next) {
+			this.next.draw(screen)
+		}
+	}
+
+	testCollision(position: Vector2): boolean {
+		if (position.x === this.position.x && position.y === this.position.y) {
+			return true
+		}
+
+		if (this.next) {
+			return this.next.testCollision(position)
+		}
+
+		return false
+	}
+
+	handleCollision(entity: Entity) {
+		this.board.loseGame()
+	}
+
+	grow(length: number) {
+		if (length <= 0) {
+			return
+		}
+
+		if (this.next) {
+			this.next.grow(length)
+		}
+
+		this.next = new SnakeBlock(this.board, this.position, this)
+		this.next.grow(length - 1)
+	}
+
+	private getNextPosition(direction: Direction): Vector2 {
+		const newPosition = { x: this.position.x, y: this.position.y }
+
+		switch (direction) {
 			case Direction.None:
 				// Do nothing
-				return
+				break
 			case Direction.Up:
 				// With the modulo operation, this is equivalent to substracting 1
 				// to the current position, while avoiding negative numbers
@@ -75,42 +151,7 @@ class SnakeBlock implements Entity {
 				break
 		}
 
-		this.position = newPosition
-
-		const collision = this.board.query(newPosition)
-
-		if (collision) {
-			collision.handleCollision(this)
-		}
-
-		if (this.next) {
-			this.next.update()
-		}
-	}
-
-	draw(screen: number[][]) {
-		screen[this.position.y][this.position.x] = SNAKE_COLOR
-
-		if (this.next) {
-			this.next.draw(screen)
-		}
-	}
-
-	handleCollision(entity: Entity) {
-		this.board.loseGame()
-	}
-
-	grow(length: number) {
-		if (length <= 0) {
-			return
-		}
-
-		if (this.next) {
-			this.next.grow(length)
-		}
-
-		this.next = new SnakeBlock(this.board, this.position, this)
-		this.next.grow(length - 1)
+		return newPosition
 	}
 }
 
@@ -128,6 +169,10 @@ export class Snake implements Entity {
 
 	draw(screen: number[][]) {
 		this.head.draw(screen)
+	}
+
+	testCollision(position: Vector2) {
+		return this.head.testCollision(position)
 	}
 
 	handleCollision(entity: Entity) {

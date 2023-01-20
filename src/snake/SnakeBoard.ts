@@ -37,8 +37,8 @@ export class SnakeBoard {
 		this.chroma.drawKeyboard(this.offsetX, this.offsetY, screen)
 	}
 
-	query(position: Vector2): Entity | null {
-		return null
+	query(position: Vector2): Entity | undefined {
+		return this.entities.find((entity) => entity.testCollision(position))
 	}
 
 	startGame() {
@@ -52,5 +52,7 @@ export class SnakeBoard {
 		}, 150)
 	}
 
-	loseGame() {}
+	loseGame() {
+		console.log("game over")
+	}
 }
