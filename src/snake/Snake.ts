@@ -13,9 +13,52 @@ enum Direction {
 	Right,
 }
 
+class InputBuffer {
+	private buffer: Direction[]
+	private start: number
+	private end: number
+	private length: number
+
+	constructor(private maxLength: number) {
+		this.buffer = new Array(maxLength)
+		this.start = 0
+		this.end = 0
+		this.length = 0
+	}
+
+	enqueue(input: Direction) {
+		if (this.buffer[this.end - 1] === input) {
+			// Input is the same as the last one, discard
+			return
+		}
+
+		if (this.length === this.maxLength) {
+			// Queue is full, discard input
+			return
+		}
+
+		++this.length
+		this.buffer[this.end] = input
+		this.end = (this.end + 1) % this.maxLength
+	}
+
+	dequeue(): Direction | undefined {
+		if (this.length === 0) {
+			return undefined
+		}
+
+		--this.length
+		const input = this.buffer[this.start]
+		this.start = (this.start + 1) % this.maxLength
+
+		return input
+	}
+}
+
 class SnakeBlock implements Entity {
 	private next?: SnakeBlock
 	private direction: Direction = Direction.None
+	private inputBuffer?: InputBuffer
 
 	constructor(
 		private board: SnakeBoard,
@@ -25,6 +68,8 @@ class SnakeBlock implements Entity {
 	) {
 		if (!prev) {
 			// This is the head, handle input
+			this.inputBuffer = new InputBuffer(3)
+
 			document.addEventListener("keydown", (e) => {
 				let newDirection = this.direction
 
@@ -44,22 +89,14 @@ class SnakeBlock implements Entity {
 						break
 				}
 
-				// Don't allow the snake to crash into itself by reversing its
-				// movement
-				const nextPosition = this.getNextPosition(newDirection)
-
-				if (
-					!this.next ||
-					this.next.position.x !== nextPosition.x ||
-					this.next.position.y !== nextPosition.y
-				) {
-					this.direction = newDirection
-				}
+				this.inputBuffer!.enqueue(newDirection)
 			})
 		}
 	}
 
 	update() {
+		this.handleInput()
+
 		if (this.next) {
 			this.next.update()
 		}
@@ -160,6 +197,32 @@ class SnakeBlock implements Entity {
 		}
 
 		return newPosition
+	}
+
+	private handleInput() {
+		if (!this.inputBuffer) {
+			return
+		}
+
+		let nextInput = this.inputBuffer.dequeue()
+		let acceptedInput = false
+
+		while (nextInput && !acceptedInput) {
+			// Don't allow the snake to crash into itself by reversing its
+			// movement
+			const nextPosition = this.getNextPosition(nextInput)
+
+			if (
+				!this.next ||
+				this.next.position.x !== nextPosition.x ||
+				this.next.position.y !== nextPosition.y
+			) {
+				this.direction = nextInput
+				acceptedInput = true
+			} else {
+				nextInput = this.inputBuffer.dequeue()
+			}
+		}
 	}
 }
 
