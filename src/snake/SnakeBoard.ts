@@ -52,7 +52,7 @@ export class SnakeBoard {
 		this.interval = setInterval(async () => {
 			this.update()
 			this.draw()
-		}, 150)
+		}, 200)
 	}
 
 	loseGame() {
