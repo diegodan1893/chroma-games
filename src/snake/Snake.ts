@@ -2,7 +2,7 @@ import { Vector2 } from "../math/Vector2"
 import { Entity } from "./Entity"
 import { SnakeBoard } from "./SnakeBoard"
 
-const SNAKE_COLOR = 0x00ff00
+const ALIVE_SNAKE_COLOR = 0x00ff00
 const DEAD_SNAKE_COLOR = 0x0000ff
 
 enum Direction {
@@ -69,65 +69,47 @@ class SnakeBlock implements Entity {
 		if (!prev) {
 			// This is the head, handle input
 			this.inputBuffer = new InputBuffer(3)
-
-			document.addEventListener("keydown", (e) => {
-				let newDirection = this.direction
-
-				switch (e.key) {
-					case "ArrowUp":
-						newDirection = Direction.Up
-						break
-					case "ArrowDown":
-						newDirection = Direction.Down
-						break
-					case "ArrowRight":
-						newDirection = Direction.Right
-						break
-					case "ArrowLeft":
-						newDirection = Direction.Left
-					default:
-						break
-				}
-
-				this.inputBuffer!.enqueue(newDirection)
-			})
 		}
 	}
 
 	update() {
-		this.handleInput()
+		if (this.snake.alive) {
+			this.processInput()
 
-		if (this.next) {
-			this.next.update()
-		}
-
-		const currentDirection = this.direction
-
-		if (this.prev) {
-			this.direction = this.prev.direction
-		}
-
-		if (currentDirection === Direction.None) {
-			// If the snake is not moving, don't test for collisions
-			return
-		}
-
-		const newPosition = this.getNextPosition(currentDirection)
-
-		if (!this.prev) {
-			// This is the head, check for collisions
-			const collision = this.board.query(newPosition)
-
-			if (collision) {
-				collision.handleCollision(this.snake)
+			if (this.next) {
+				this.next.update()
 			}
-		}
 
-		this.position = newPosition
+			const currentDirection = this.direction
+
+			if (this.prev) {
+				this.direction = this.prev.direction
+			}
+
+			if (currentDirection === Direction.None) {
+				// If the snake is not moving, don't test for collisions
+				return
+			}
+
+			const newPosition = this.getNextPosition(currentDirection)
+
+			if (!this.prev) {
+				// This is the head, check for collisions
+				const collision = this.board.query(newPosition)
+
+				if (collision) {
+					collision.handleCollision(this.snake)
+				}
+			}
+
+			this.position = newPosition
+		}
 	}
 
 	draw(screen: number[][]) {
-		screen[this.position.y][this.position.x] = this.snake.color
+		screen[this.position.y][this.position.x] = this.snake.alive
+			? ALIVE_SNAKE_COLOR
+			: DEAD_SNAKE_COLOR
 
 		if (this.next) {
 			this.next.draw(screen)
@@ -149,6 +131,32 @@ class SnakeBlock implements Entity {
 	handleCollision(entity: Entity) {
 		this.snake.kill()
 		this.board.loseGame()
+	}
+
+	handleInput(key: string) {
+		if (!this.inputBuffer) {
+			return
+		}
+
+		let newDirection = this.direction
+
+		switch (key) {
+			case "ArrowUp":
+				newDirection = Direction.Up
+				break
+			case "ArrowDown":
+				newDirection = Direction.Down
+				break
+			case "ArrowRight":
+				newDirection = Direction.Right
+				break
+			case "ArrowLeft":
+				newDirection = Direction.Left
+			default:
+				break
+		}
+
+		this.inputBuffer.enqueue(newDirection)
 	}
 
 	grow(length: number) {
@@ -199,7 +207,7 @@ class SnakeBlock implements Entity {
 		return newPosition
 	}
 
-	private handleInput() {
+	private processInput() {
 		if (!this.inputBuffer) {
 			return
 		}
@@ -228,17 +236,17 @@ class SnakeBlock implements Entity {
 
 export class Snake implements Entity {
 	private head: SnakeBlock
-	private _color: number
+	private _alive: boolean
 
 	constructor(private board: SnakeBoard, position: Vector2, length: number) {
 		this.head = new SnakeBlock(board, this, position, undefined)
 		this.grow(length - 1)
 
-		this._color = SNAKE_COLOR
+		this._alive = true
 	}
 
-	get color() {
-		return this._color
+	get alive() {
+		return this._alive
 	}
 
 	update() {
@@ -257,11 +265,15 @@ export class Snake implements Entity {
 		this.head.handleCollision(entity)
 	}
 
+	handleInput(key: string) {
+		this.head.handleInput(key)
+	}
+
 	grow(length: number = 1) {
 		this.head.grow(length)
 	}
 
 	kill() {
-		this._color = DEAD_SNAKE_COLOR
+		this._alive = false
 	}
 }

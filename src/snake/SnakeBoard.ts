@@ -5,9 +5,17 @@ import { Entity } from "./Entity"
 import { Snake } from "./Snake"
 import { Food } from "./Food"
 
+enum GameState {
+	Stopped,
+	Playing,
+	GameOver,
+}
+
 export class SnakeBoard {
+	private state: GameState
 	private entities: Entity[]
 	private interval?: ReturnType<typeof setTimeout>
+	private inputAbortController?: AbortController
 
 	constructor(
 		private chroma: Chroma,
@@ -17,6 +25,7 @@ export class SnakeBoard {
 		private offsetY: number
 	) {
 		this.entities = []
+		this.state = GameState.Stopped
 	}
 
 	get width() {
@@ -44,10 +53,29 @@ export class SnakeBoard {
 	}
 
 	startGame() {
+		if (this.state !== GameState.Stopped) {
+			this.stopGame()
+		}
+
 		this.entities = [
 			new Snake(this, { x: 1, y: Math.floor(this.height / 2) }, 3),
 			new Food(this),
 		]
+
+		this.state = GameState.Playing
+
+		this.inputAbortController = new AbortController()
+		document.addEventListener(
+			"keydown",
+			(event) => {
+				this.entities.forEach((entity) => {
+					if (entity.handleInput) {
+						entity.handleInput(event.key)
+					}
+				})
+			},
+			{ signal: this.inputAbortController.signal }
+		)
 
 		this.interval = setInterval(async () => {
 			this.update()
@@ -55,12 +83,20 @@ export class SnakeBoard {
 		}, 200)
 	}
 
-	loseGame() {
-		// Draw the game one last time
-		this.draw()
+	stopGame() {
+		this.state = GameState.Stopped
+
+		if (this.inputAbortController) {
+			this.inputAbortController.abort()
+		}
 
 		if (this.interval) {
 			clearInterval(this.interval)
+			this.interval = undefined
 		}
+	}
+
+	loseGame() {
+		this.state = GameState.GameOver
 	}
 }

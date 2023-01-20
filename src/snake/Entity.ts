@@ -5,4 +5,5 @@ export interface Entity {
 	draw: (screen: number[][]) => void
 	testCollision: (position: Vector2) => boolean
 	handleCollision: (entity: Entity) => void
+	handleInput?: (key: string) => void
 }
