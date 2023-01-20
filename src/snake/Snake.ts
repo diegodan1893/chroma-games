@@ -3,6 +3,7 @@ import { Entity } from "./Entity"
 import { SnakeBoard } from "./SnakeBoard"
 
 const SNAKE_COLOR = 0x00ff00
+const DEAD_SNAKE_COLOR = 0x0000ff
 
 enum Direction {
 	None,
@@ -89,7 +90,7 @@ class SnakeBlock implements Entity {
 	}
 
 	draw(screen: number[][]) {
-		screen[this.position.y][this.position.x] = SNAKE_COLOR
+		screen[this.position.y][this.position.x] = this.snake.color
 
 		if (this.next) {
 			this.next.draw(screen)
@@ -109,6 +110,7 @@ class SnakeBlock implements Entity {
 	}
 
 	handleCollision(entity: Entity) {
+		this.snake.kill()
 		this.board.loseGame()
 	}
 
@@ -163,10 +165,17 @@ class SnakeBlock implements Entity {
 
 export class Snake implements Entity {
 	private head: SnakeBlock
+	private _color: number
 
 	constructor(private board: SnakeBoard, position: Vector2, length: number) {
 		this.head = new SnakeBlock(board, this, position, undefined)
 		this.grow(length - 1)
+
+		this._color = SNAKE_COLOR
+	}
+
+	get color() {
+		return this._color
 	}
 
 	update() {
@@ -187,5 +196,9 @@ export class Snake implements Entity {
 
 	grow(length: number = 1) {
 		this.head.grow(length)
+	}
+
+	kill() {
+		this._color = DEAD_SNAKE_COLOR
 	}
 }

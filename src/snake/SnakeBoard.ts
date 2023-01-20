@@ -56,6 +56,9 @@ export class SnakeBoard {
 	}
 
 	loseGame() {
+		// Draw the game one last time
+		this.draw()
+
 		if (this.interval) {
 			clearInterval(this.interval)
 		}
