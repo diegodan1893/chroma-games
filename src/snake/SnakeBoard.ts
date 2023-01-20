@@ -1,4 +1,4 @@
-import { filledMatrix } from "../math/Matrix"
+import { Matrix } from "../math/Matrix"
 import { Chroma } from "../chroma/Chroma"
 import { Vector2 } from "../math/Vector2"
 import { Entity } from "./Entity"
@@ -14,6 +14,8 @@ enum GameState {
 export class SnakeBoard {
 	private state: GameState
 	private entities: Entity[]
+	private screen: Matrix
+
 	private interval?: ReturnType<typeof setTimeout>
 	private inputAbortController?: AbortController
 
@@ -26,6 +28,7 @@ export class SnakeBoard {
 	) {
 		this.entities = []
 		this.state = GameState.Stopped
+		this.screen = new Matrix(this.width, this.height)
 	}
 
 	get width() {
@@ -41,11 +44,11 @@ export class SnakeBoard {
 	}
 
 	draw() {
-		const screen = filledMatrix(this.width, this.height, 0)
+		this.screen.clear()
 
-		this.entities.forEach((entity) => entity.draw(screen))
+		this.entities.forEach((entity) => entity.draw(this.screen))
 
-		this.chroma.drawKeyboard(this.offsetX, this.offsetY, screen)
+		this.chroma.drawKeyboard(this.screen, this.offsetX, this.offsetY)
 	}
 
 	query(position: Vector2): Entity | undefined {
@@ -82,7 +85,7 @@ export class SnakeBoard {
 			{ signal: this.inputAbortController.signal }
 		)
 
-		this.interval = setInterval(async () => {
+		this.interval = setInterval(() => {
 			this.update()
 			this.draw()
 		}, 200)

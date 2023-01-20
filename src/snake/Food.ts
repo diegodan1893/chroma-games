@@ -1,3 +1,4 @@
+import { Matrix } from "../math/Matrix"
 import { randomInRange } from "../math/Random"
 import { Vector2 } from "../math/Vector2"
 import { Entity } from "./Entity"
@@ -16,8 +17,8 @@ export class Food implements Entity {
 
 	update() {}
 
-	draw(screen: number[][]) {
-		screen[this.position.y][this.position.x] = FOOD_COLOR
+	draw(screen: Matrix) {
+		screen.set(this.position.x, this.position.y, FOOD_COLOR)
 	}
 
 	testCollision(position: Vector2) {

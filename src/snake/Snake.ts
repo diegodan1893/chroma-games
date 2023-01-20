@@ -1,3 +1,4 @@
+import { Matrix } from "../math/Matrix"
 import { Vector2 } from "../math/Vector2"
 import { Entity } from "./Entity"
 import { SnakeBoard } from "./SnakeBoard"
@@ -110,7 +111,6 @@ class SnakeBlock implements Entity {
 			// Dead animation
 			if (this.prev) {
 				this.alive = this.prev.alive
-				console.log(this.alive)
 			} else {
 				// This is the head
 				this.alive = false
@@ -118,10 +118,12 @@ class SnakeBlock implements Entity {
 		}
 	}
 
-	draw(screen: number[][]) {
-		screen[this.position.y][this.position.x] = this.alive
-			? ALIVE_SNAKE_COLOR
-			: DEAD_SNAKE_COLOR
+	draw(screen: Matrix) {
+		screen.set(
+			this.position.x,
+			this.position.y,
+			this.alive ? ALIVE_SNAKE_COLOR : DEAD_SNAKE_COLOR
+		)
 
 		if (this.next) {
 			this.next.draw(screen)
@@ -265,7 +267,7 @@ export class Snake implements Entity {
 		this.head.update()
 	}
 
-	draw(screen: number[][]) {
+	draw(screen: Matrix) {
 		this.head.draw(screen)
 	}
 
