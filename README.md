@@ -1,10 +1,10 @@
 # Razer Snake
 
-Snake game for Razer Chroma keyboards.
+The classic snake game for your Razer Chroma keyboard. [Playable in your browser](https://diegodan1893.github.io/razer-snake/), no need to download anything.
 
 ## How to run
 
-Start a development server with.
+Start a development server with
 
 ```bash
 npm install
@@ -20,14 +20,10 @@ npm install
 npm run build
 ```
 
-Then, you get `./dist` directory. The file structure should be the following.
+The output will be in the `./dist` directory.
 
-```
-dist/
-├── bundle.js
-├── index.html
-└── src
-    └── index.d.ts
-```
+Deploy to GitHub Pages with
 
-`bundle.js` includes an inline source map.
+```bash
+npm run deploy
+```
