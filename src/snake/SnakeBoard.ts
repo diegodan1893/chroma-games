@@ -68,11 +68,16 @@ export class SnakeBoard {
 		document.addEventListener(
 			"keydown",
 			(event) => {
-				this.entities.forEach((entity) => {
-					if (entity.handleInput) {
-						entity.handleInput(event.key)
-					}
-				})
+				if (event.key === "Backspace") {
+					// Restart the game on backspace
+					this.startGame()
+				} else {
+					this.entities.forEach((entity) => {
+						if (entity.handleInput) {
+							entity.handleInput(event.key)
+						}
+					})
+				}
 			},
 			{ signal: this.inputAbortController.signal }
 		)
