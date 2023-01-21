@@ -1,6 +1,8 @@
 import { Chroma } from "./chroma/Chroma"
 import { SnakeBoard } from "./snake/SnakeBoard"
 
+import "./main.css"
+
 const main = async () => {
 	const body = JSON.stringify({
 		title: "Razer Snake",
