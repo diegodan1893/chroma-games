@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Then, you can access to <http://localhost:8080/>, which will be loaded automatically if file changes detected.
+Then, you can access to <http://localhost:3000/>, which will be loaded automatically if file changes detected.
 
 ## Build
 
