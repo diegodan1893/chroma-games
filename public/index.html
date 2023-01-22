@@ -1,59 +1,17 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>Razer Snake</title>
-	</head>
-	<body>
-		<div class="flex flex-col min-h-screen min-w-screen justify-center text-razer-light-gray font-roboto text-lg font-normal text-center">
-			<div class="flex flex-1 justify-center items-end py-10 bg-black text-[0] uppercase font-thin">
-				<span class="text-4xl tracking-[.6em] text-razer-green text-glow-razer-green">RAZER</span>
-				<span class="text-4xl tracking-[.6em] text-gray-800">SNA</span>
-				<span class="text-4xl tracking-[.6em] text-white text-glow-white">K</span>
-				<span class="text-4xl tracking-[.6em] text-gray-800">E</span>
-			</div>
-			<div class="flex flex-1 flex-col w-full items-center p-10 space-y-5 bg-razer-dark-gray">
-				<div id="loading" class="flex flex-col h-48 justify-center space-y-5">
-					<span class="flex h-10 w-10 relative">
-						<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-razer-green opacity-75"></span>
-						<span class="relative inline-flex rounded-full h-10 w-10 bg-razer-green"></span>
-					</span>
-				</div>
-				<div id="playing" class="hidden flex-col h-48 justify-center space-y-5">
-					<h1 class="font-light text-3xl text-white uppercase">
-						Look at your keyboard
-					</h1>
-					<ul>
-						<li>
-							Use
-							<span class="px-1.5 py-1 align-middle rounded-[4px] uppercase text-xs font-light bg-gray-800 text-white">⯅</span>
-							<span class="px-1.5 py-1 align-middle rounded-[4px] uppercase text-xs font-light bg-gray-800 text-white">⯇</span>
-							<span class="px-1.5 py-1 align-middle rounded-[4px] uppercase text-xs font-light bg-gray-800 text-white">⯆</span>
-							<span class="px-1.5 py-1 align-middle rounded-[4px] uppercase text-xs font-light bg-gray-800 text-white">⯈</span>
-							to move the snake
-						</li>
-						<li>
-							Reset the game with
-							<span class="px-1.5 py-1 align-middle rounded-[4px] uppercase text-xs font-light bg-gray-800 text-white">← Backspace</span>
-						</li>
-					</ul>
-				</div>
-				<div id="error" class="hidden flex-col h-48 justify-center space-y-5">
-					<h1 class="font-light text-3xl text-white uppercase">
-						Error
-					</h1>
-					<p>
-						We were unable to start a connection with Razer Synapse<br/>
-						Make sure Razer Synapse is installed and running and try again
-					</p>
-				</div>
-				<a
-					href="https://github.com/diegodan1893/razer-snake"
-					class="text-razer-green hover:underline"
-				>
-					View Source Code >
-				</a>
-			</div>
-		</div>
-	</body>
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>Chroma Games</title>
+</head>
+
+<body>
+	<div id="root"></div>
+	<noscript>
+		You need to enable JavaScript to run this app.
+	</noscript>
+</body>
+
 </html>

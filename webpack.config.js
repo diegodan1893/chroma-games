@@ -6,7 +6,7 @@ const srcPath = path.resolve(__dirname, "src")
 const buildPath = path.resolve(__dirname, "dist")
 
 module.exports = {
-	entry: path.join(srcPath, "index.ts"),
+	entry: path.join(srcPath, "index.tsx"),
 
 	output: {
 		path: buildPath,
@@ -16,12 +16,13 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.js$/,
+				test: /\.(js|jsx)$/,
 				exclude: /node_modules/,
 				loader: "babel-loader",
+				options: { presets: ["@babel/env"] },
 			},
 			{
-				test: /\.ts$/,
+				test: /\.(ts|tsx)$/,
 				exclude: /node_modules/,
 				loader: "ts-loader",
 			},
@@ -47,7 +48,7 @@ module.exports = {
 	},
 
 	resolve: {
-		extensions: ["*", ".js", ".ts"],
+		extensions: ["*", ".js", ".jsx", ".ts", ".tsx"],
 	},
 
 	devtool: "inline-source-map",

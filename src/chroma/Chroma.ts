@@ -73,7 +73,10 @@ export class Chroma {
 		}
 
 		await this.request({ method: "DELETE" })
-		clearInterval(this.interval!)
+
+		if (this.interval) {
+			clearInterval(this.interval)
+		}
 	}
 
 	async drawKeyboard(image: Matrix, offsetX: number, offsetY: number) {
@@ -92,7 +95,8 @@ export class Chroma {
 	}
 
 	async request(options: RequestOptions) {
-		if (!options.url && !this.uri) {
+		let url = options.url || this.uri
+		if (!url) {
 			return
 		}
 
@@ -108,7 +112,6 @@ export class Chroma {
 			requestInit.body = JSON.stringify(options.body)
 		}
 
-		let url = options.url || this.uri!
 		if (options.path) {
 			url += options.path
 		}

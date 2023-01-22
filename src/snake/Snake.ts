@@ -142,7 +142,7 @@ class SnakeBlock implements Entity {
 		return false
 	}
 
-	handleCollision(entity: Entity) {
+	handleCollision() {
 		this.snake.kill()
 		this.board.loseGame()
 	}
@@ -166,6 +166,7 @@ class SnakeBlock implements Entity {
 				break
 			case "ArrowLeft":
 				newDirection = Direction.Left
+				break
 			default:
 				break
 		}
@@ -275,15 +276,15 @@ export class Snake implements Entity {
 		return this.head.testCollision(position)
 	}
 
-	handleCollision(entity: Entity) {
-		this.head.handleCollision(entity)
+	handleCollision() {
+		this.head.handleCollision()
 	}
 
 	handleInput(key: string) {
 		this.head.handleInput(key)
 	}
 
-	grow(length: number = 1) {
+	grow(length = 1) {
 		this.head.grow(length)
 	}
 

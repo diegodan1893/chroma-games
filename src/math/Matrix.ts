@@ -27,7 +27,7 @@ export class Matrix {
 		this._data[y][x] = value
 	}
 
-	copy(matrix: Matrix, offsetX: number = 0, offsetY: number = 0) {
+	copy(matrix: Matrix, offsetX = 0, offsetY = 0) {
 		matrix._data.forEach((row, y) =>
 			row.forEach(
 				(value, x) => (this._data[y + offsetY][x + offsetX] = value)

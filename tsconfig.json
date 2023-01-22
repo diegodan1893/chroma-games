@@ -12,6 +12,9 @@
     "outDir": "dist",
     "rootDir": "./",
     "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
     "paths": {
       "*": ["types/*"]
     }
