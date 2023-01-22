@@ -1,6 +1,6 @@
 {
   "name": "razer-snake",
-  "version": "0.1.0-SNAPSHOT",
+  "version": "1.0.0",
   "description": "Snake Game for Razer Chroma keyboards",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -30,6 +30,7 @@
     "css-loader": "^6.7.3",
     "eslint": "^8.32.0",
     "eslint-plugin-react": "^7.32.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "gh-pages": "^5.0.0",
     "html-webpack-plugin": "^5.5.0",
     "open-cli": "^7.1.0",
@@ -44,6 +45,7 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
+    "classnames": "^2.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }

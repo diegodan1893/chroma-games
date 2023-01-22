@@ -1,5 +1,5 @@
-import { Matrix } from "../math/Matrix"
-import { Vector2 } from "../math/Vector2"
+import { Matrix } from "../../math/Matrix"
+import { Vector2 } from "../../math/Vector2"
 
 export interface Entity {
 	update: () => void

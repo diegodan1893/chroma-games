@@ -10,7 +10,7 @@ module.exports = {
 
 	output: {
 		path: buildPath,
-		filename: "bundle.js",
+		filename: "[name]-[contenthash].js",
 	},
 
 	module: {
@@ -50,8 +50,6 @@ module.exports = {
 	resolve: {
 		extensions: ["*", ".js", ".jsx", ".ts", ".tsx"],
 	},
-
-	devtool: "inline-source-map",
 
 	plugins: [
 		new HtmlWebpackPlugin({

@@ -1,9 +1,10 @@
-import { Matrix } from "../math/Matrix"
-import { Chroma } from "../chroma/Chroma"
-import { Vector2 } from "../math/Vector2"
+import { Matrix } from "../../math/Matrix"
+import { Chroma } from "../../chroma/Chroma"
+import { Vector2 } from "../../math/Vector2"
 import { Entity } from "./Entity"
 import { Snake } from "./Snake"
 import { Food } from "./Food"
+import { Game } from "../common/Game"
 
 enum GameState {
 	Stopped,
@@ -11,7 +12,7 @@ enum GameState {
 	GameOver,
 }
 
-export class SnakeBoard {
+export class SnakeBoard implements Game {
 	private state: GameState
 	private entities: Entity[]
 	private screen: Matrix
