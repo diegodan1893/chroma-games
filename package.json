@@ -1,7 +1,7 @@
 {
-  "name": "razer-snake",
-  "version": "1.0.0",
-  "description": "Snake Game for Razer Chroma keyboards",
+  "name": "chroma-games",
+  "version": "2.0.0",
+  "description": "A collection of games for Razer Chroma keyboards",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "open-cli http://localhost:3000/ && webpack-cli serve --mode development --port 3000",

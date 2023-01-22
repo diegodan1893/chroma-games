@@ -1,6 +1,6 @@
-# Razer Snake
+# Chroma Games
 
-The classic snake game for your Razer Chroma keyboard. [Playable in your browser](https://diegodan1893.github.io/razer-snake/), no need to download anything.
+A collection of games for your Razer Chroma keyboard. [Playable in your browser](https://diegodan1893.github.io/razer-snake/), no downloads required.
 
 ## How to run
 
