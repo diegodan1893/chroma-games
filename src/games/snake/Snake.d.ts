@@ -1,5 +1,5 @@
-import { Matrix } from "../math/Matrix";
-import { Vector2 } from "../math/Vector2";
+import { Matrix } from "../../math/Matrix";
+import { Vector2 } from "../../math/Vector2";
 import { Entity } from "./Entity";
 import { SnakeBoard } from "./SnakeBoard";
 export declare class Snake implements Entity {
@@ -11,7 +11,7 @@ export declare class Snake implements Entity {
     update(): void;
     draw(screen: Matrix): void;
     testCollision(position: Vector2): boolean;
-    handleCollision(entity: Entity): void;
+    handleCollision(): void;
     handleInput(key: string): void;
     grow(length?: number): void;
     kill(): void;

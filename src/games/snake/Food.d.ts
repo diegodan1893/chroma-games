@@ -1,5 +1,5 @@
-import { Matrix } from "../math/Matrix";
-import { Vector2 } from "../math/Vector2";
+import { Matrix } from "../../math/Matrix";
+import { Vector2 } from "../../math/Vector2";
 import { Entity } from "./Entity";
 import { SnakeBoard } from "./SnakeBoard";
 export declare class Food implements Entity {

@@ -1,7 +1,8 @@
-import { Chroma } from "../chroma/Chroma";
-import { Vector2 } from "../math/Vector2";
+import { Chroma } from "../../chroma/Chroma";
+import { Vector2 } from "../../math/Vector2";
 import { Entity } from "./Entity";
-export declare class SnakeBoard {
+import { Game } from "../common/Game";
+export declare class SnakeBoard implements Game {
     private chroma;
     private _width;
     private _height;
