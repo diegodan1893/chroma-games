@@ -79,11 +79,15 @@ export class Chroma {
 		}
 	}
 
-	async drawKeyboard(image: Matrix, offsetX: number, offsetY: number) {
+	clear() {
 		this.keyboard.clear()
+	}
 
+	copy(image: Matrix, offsetX: number, offsetY: number) {
 		this.keyboard.copy(image, offsetX, offsetY)
+	}
 
+	async present() {
 		await this.request({
 			path: "/keyboard",
 			method: "PUT",

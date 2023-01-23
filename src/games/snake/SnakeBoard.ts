@@ -22,10 +22,10 @@ export class SnakeBoard implements Game {
 
 	constructor(
 		private chroma: Chroma,
-		private _width: number,
-		private _height: number,
-		private offsetX: number,
-		private offsetY: number
+		private _width = 11,
+		private _height = 4,
+		private offsetX = 2,
+		private offsetY = 1
 	) {
 		this.entities = []
 		this.state = GameState.Stopped
@@ -49,7 +49,8 @@ export class SnakeBoard implements Game {
 
 		this.entities.forEach((entity) => entity.draw(this.screen))
 
-		this.chroma.drawKeyboard(this.screen, this.offsetX, this.offsetY)
+		this.chroma.copy(this.screen, this.offsetX, this.offsetY)
+		this.chroma.present()
 	}
 
 	query(position: Vector2): Entity | undefined {
