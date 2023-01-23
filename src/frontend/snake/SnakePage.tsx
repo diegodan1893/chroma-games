@@ -1,4 +1,4 @@
-import { Chroma } from "../../chroma/Chroma"
+import { Chroma } from "../../renderers/Chroma"
 import { SnakeBoard } from "../../games/snake/SnakeBoard"
 import { GamePage } from "../common/GamePage"
 import { KeyboardPrompt } from "../common/KeyboardPrompt"

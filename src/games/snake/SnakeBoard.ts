@@ -1,5 +1,5 @@
 import { Matrix } from "../../math/Matrix"
-import { Chroma } from "../../chroma/Chroma"
+import { Renderer } from "../../renderers/Renderer"
 import { Vector2 } from "../../math/Vector2"
 import { Entity } from "./Entity"
 import { Snake } from "./Snake"
@@ -21,11 +21,10 @@ export class SnakeBoard implements Game {
 	private inputAbortController?: AbortController
 
 	constructor(
-		private chroma: Chroma,
+		private renderer: Renderer,
 		private _width = 11,
 		private _height = 4,
-		private offsetX = 2,
-		private offsetY = 1
+		private boardPosition: Vector2 = { x: 2, y: 1 }
 	) {
 		this.entities = []
 		this.state = GameState.Stopped
@@ -49,8 +48,8 @@ export class SnakeBoard implements Game {
 
 		this.entities.forEach((entity) => entity.draw(this.screen))
 
-		this.chroma.copy(this.screen, this.offsetX, this.offsetY)
-		this.chroma.present()
+		this.renderer.copy(this.screen, this.boardPosition)
+		this.renderer.present()
 	}
 
 	query(position: Vector2): Entity | undefined {

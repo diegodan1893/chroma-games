@@ -1,4 +1,6 @@
+import { Vector2 } from "../math/Vector2"
 import { Matrix } from "../math/Matrix"
+import { Renderer } from "./Renderer"
 
 const RAZER_CHROMA_URI = "http://localhost:54235/razer/chromasdk"
 
@@ -18,7 +20,7 @@ interface RequestOptions {
 	body?: object
 }
 
-export class Chroma {
+export class Chroma implements Renderer {
 	private uri?: string
 	private sessionId?: number
 	private interval?: ReturnType<typeof setTimeout>
@@ -83,8 +85,8 @@ export class Chroma {
 		this.keyboard.clear()
 	}
 
-	copy(image: Matrix, offsetX: number, offsetY: number) {
-		this.keyboard.copy(image, offsetX, offsetY)
+	copy(image: Matrix, offset?: Vector2) {
+		this.keyboard.copy(image, offset)
 	}
 
 	async present() {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Game } from "../../games/common/Game"
-import { Chroma } from "../../chroma/Chroma"
+import { Chroma } from "../../renderers/Chroma"
 
 type GameFactory = (chroma: Chroma) => Game
 
