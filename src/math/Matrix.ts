@@ -1,16 +1,22 @@
 import { Vector2 } from "./Vector2"
 
 export class Matrix {
+	/**
+	 * If set to a number, cells whose value equals to the mask won't be
+	 * copied to other matrixes
+	 */
+	public mask: number | undefined
+
 	private _data: number[][]
 
 	constructor(
-		private width: number,
-		private height: number,
+		private _width: number,
+		private _height: number,
 		private fillValue: number = 0
 	) {
-		this._data = new Array(height)
+		this._data = new Array(_height)
 			.fill(0)
-			.map(() => new Array(width).fill(fillValue))
+			.map(() => new Array(_width).fill(fillValue))
 	}
 
 	/**
@@ -27,16 +33,33 @@ export class Matrix {
 		return matrix
 	}
 
+	get width() {
+		return this._width
+	}
+
+	get height() {
+		return this._height
+	}
+
 	get data() {
 		return this._data
 	}
 
 	clear() {
-		for (let y = 0; y < this.height; ++y) {
-			for (let x = 0; x < this.width; ++x) {
+		for (let y = 0; y < this._height; ++y) {
+			for (let x = 0; x < this._width; ++x) {
 				this._data[y][x] = this.fillValue
 			}
 		}
+	}
+
+	get(x: number, y: number) {
+		if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+			// Consider the matrix expands infinitely in all directions
+			// with the fill value
+			return this.fillValue
+		}
+		return this._data[y][x]
 	}
 
 	set(x: number, y: number, value: number) {
@@ -47,10 +70,18 @@ export class Matrix {
 		const copyOffset = offset ?? { x: 0, y: 0 }
 
 		matrix._data.forEach((row, y) =>
-			row.forEach(
-				(value, x) =>
-					(this._data[y + copyOffset.y][x + copyOffset.x] = value)
-			)
+			row.forEach((value, x) => {
+				const destX = x + copyOffset.x
+				const destY = y + copyOffset.y
+
+				if (
+					value !== matrix.mask &&
+					destX < this.width &&
+					destY < this.height
+				) {
+					this._data[destY][destX] = value
+				}
+			})
 		)
 	}
 }

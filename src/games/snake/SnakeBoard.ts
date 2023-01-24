@@ -39,19 +39,6 @@ export class SnakeBoard implements Game {
 		return this._height
 	}
 
-	update() {
-		this.entities.forEach((entity) => entity.update())
-	}
-
-	draw() {
-		this.screen.clear()
-
-		this.entities.forEach((entity) => entity.draw(this.screen))
-
-		this.renderer.copy(this.screen, this.boardPosition)
-		this.renderer.present()
-	}
-
 	query(position: Vector2): Entity | undefined {
 		return this.entities.find((entity) => entity.testCollision(position))
 	}
@@ -107,5 +94,18 @@ export class SnakeBoard implements Game {
 
 	loseGame() {
 		this.state = GameState.GameOver
+	}
+
+	private update() {
+		this.entities.forEach((entity) => entity.update())
+	}
+
+	private draw() {
+		this.screen.clear()
+
+		this.entities.forEach((entity) => entity.draw(this.screen))
+
+		this.renderer.copy(this.screen, this.boardPosition)
+		this.renderer.present()
 	}
 }
