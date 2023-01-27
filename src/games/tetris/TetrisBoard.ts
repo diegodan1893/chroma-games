@@ -20,13 +20,16 @@ export class TetrisBoard implements Game {
 	private currentPiece?: Piece
 	private bagPiece?: Piece
 
+	private gravityIntervalMS: number
+
 	private interval?: ReturnType<typeof setTimeout>
 	private inputAbortController?: AbortController
 
 	constructor(
 		private renderer: Chroma,
 		private boardDimensions: Rect = { x: 2, y: 1, width: 11, height: 4 },
-		private bagPosition: Vector2 = { x: 18, y: 1 }
+		private bagPosition: Vector2 = { x: 18, y: 1 },
+		private initialGravityIntervalMS = 1000
 	) {
 		this.state = GameState.Stopped
 		this.board = new Matrix(
@@ -34,6 +37,7 @@ export class TetrisBoard implements Game {
 			this.boardDimensions.height
 		)
 		this.nextPieces = []
+		this.gravityIntervalMS = initialGravityIntervalMS
 	}
 
 	query(position: Vector2) {
@@ -59,18 +63,27 @@ export class TetrisBoard implements Game {
 		this.nextPieces = []
 		this.currentPiece = undefined
 		this.bagPiece = undefined
+		this.gravityIntervalMS = this.initialGravityIntervalMS
+		this.board.clear()
 
 		this.state = GameState.Playing
 
 		this.inputAbortController = new AbortController()
-		document.addEventListener("keydown", (event) => {}, {
-			signal: this.inputAbortController.signal,
-		})
+		document.addEventListener(
+			"keydown",
+			(event) => {
+				this.handleInput(event.key)
+			},
+			{
+				signal: this.inputAbortController.signal,
+			}
+		)
 
-		this.interval = setInterval(() => {
-			this.update()
-			this.draw()
-		}, 1000)
+		// Perform a first draw so that the state of the new game
+		// is reflected immediately without waiting for the interval
+		this.draw()
+
+		this.refreshUpdateInterval()
 	}
 
 	stopGame() {
@@ -86,6 +99,17 @@ export class TetrisBoard implements Game {
 		}
 	}
 
+	private refreshUpdateInterval() {
+		if (this.interval) {
+			clearInterval(this.interval)
+		}
+
+		this.interval = setInterval(() => {
+			this.update()
+			this.draw()
+		}, this.gravityIntervalMS)
+	}
+
 	private update() {
 		if (this.state !== GameState.Playing) {
 			return
@@ -95,11 +119,7 @@ export class TetrisBoard implements Game {
 			this.currentPiece = this.getNextPiece()
 		}
 
-		const pieceMoved = this.currentPiece.attemptMove({ x: -1, y: 0 })
-
-		if (!pieceMoved) {
-			this.placeCurrentPiece()
-		}
+		this.dropCurrentPiece()
 	}
 
 	private draw() {
@@ -118,6 +138,40 @@ export class TetrisBoard implements Game {
 		}
 
 		this.renderer.present()
+	}
+
+	private handleInput(key: string) {
+		if (key === "Backspace") {
+			this.startGame()
+		} else {
+			if (this.currentPiece) {
+				switch (key) {
+					case "ArrowUp":
+						this.currentPiece.attemptMove({ x: 0, y: -1 })
+						this.draw()
+						break
+					case "ArrowDown":
+						this.currentPiece.attemptMove({ x: 0, y: +1 })
+						this.draw()
+						break
+					case "ArrowLeft":
+						this.dropCurrentPiece()
+						this.draw()
+
+						// Reset the interval so that the piece doesn't move
+						// again just after the player moves it
+						this.refreshUpdateInterval()
+						break
+					case "ArrowRight":
+						while (this.currentPiece) {
+							this.dropCurrentPiece()
+						}
+
+						this.draw()
+						break
+				}
+			}
+		}
 	}
 
 	private getNextPiece() {
@@ -143,6 +197,18 @@ export class TetrisBoard implements Game {
 		// This is never going to be undefined, we control for that above
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		return this.nextPieces.pop()!
+	}
+
+	private dropCurrentPiece() {
+		if (!this.currentPiece) {
+			return
+		}
+
+		const pieceMoved = this.currentPiece.attemptMove({ x: -1, y: 0 })
+
+		if (!pieceMoved) {
+			this.placeCurrentPiece()
+		}
 	}
 
 	private placeCurrentPiece() {
