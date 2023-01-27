@@ -130,7 +130,7 @@ export class TetrisBoard implements Game {
 		})
 
 		if (this.currentPiece) {
-			this.currentPiece.draw(this.renderer)
+			this.currentPiece.draw(this.renderer, this.boardDimensions)
 		}
 
 		if (this.bagPiece) {

@@ -1,4 +1,5 @@
 import { Vector2 } from "../math/Vector2"
+import { Rect } from "../math/Rect"
 import { Matrix } from "../math/Matrix"
 import { Renderer } from "./Renderer"
 
@@ -85,8 +86,8 @@ export class Chroma implements Renderer {
 		this.keyboard.clear()
 	}
 
-	copy(image: Matrix, offset?: Vector2) {
-		this.keyboard.copy(image, offset)
+	copy(image: Matrix, offset?: Vector2, dstRect?: Rect) {
+		this.keyboard.copy(image, offset, dstRect)
 	}
 
 	async present() {

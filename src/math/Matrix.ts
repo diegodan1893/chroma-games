@@ -1,3 +1,4 @@
+import { Rect } from "./Rect"
 import { Vector2 } from "./Vector2"
 
 export class Matrix {
@@ -66,18 +67,20 @@ export class Matrix {
 		this._data[y][x] = value
 	}
 
-	copy(matrix: Matrix, offset?: Vector2) {
-		const copyOffset = offset ?? { x: 0, y: 0 }
-
+	copy(
+		matrix: Matrix,
+		offset: Vector2 = { x: 0, y: 0 },
+		dstRect: Rect = { x: 0, y: 0, width: this.width, height: this.height }
+	) {
 		matrix._data.forEach((row, y) =>
 			row.forEach((value, x) => {
-				const destX = x + copyOffset.x
-				const destY = y + copyOffset.y
+				const destX = x + offset.x
+				const destY = y + offset.y
 
 				if (
 					value !== matrix.mask &&
-					destX < this.width &&
-					destY < this.height
+					destX < dstRect.x + dstRect.width &&
+					destY < dstRect.y + dstRect.height
 				) {
 					this._data[destY][destX] = value
 				}

@@ -121,8 +121,8 @@ export class Piece {
 		return new Piece(board, shape, spawnArea)
 	}
 
-	draw(renderer: Renderer) {
-		renderer.copy(this.shape, this.position)
+	draw(renderer: Renderer, dstRect?: Rect) {
+		renderer.copy(this.shape, this.position, dstRect)
 	}
 
 	attemptMove(move: Vector2) {
