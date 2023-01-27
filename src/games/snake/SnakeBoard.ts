@@ -105,7 +105,7 @@ export class SnakeBoard implements Game {
 
 		this.entities.forEach((entity) => entity.draw(this.screen))
 
-		this.renderer.copy(this.screen, this.boardPosition)
+		this.renderer.copy({ matrix: this.screen, offset: this.boardPosition })
 		this.renderer.present()
 	}
 }

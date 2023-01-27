@@ -124,12 +124,16 @@ export class TetrisBoard implements Game {
 
 	private draw() {
 		this.renderer.clear()
-		this.renderer.copy(this.board, {
-			x: this.boardDimensions.x,
-			y: this.boardDimensions.y,
+		this.renderer.copy({
+			matrix: this.board,
+			offset: {
+				x: this.boardDimensions.x,
+				y: this.boardDimensions.y,
+			},
 		})
 
 		if (this.currentPiece) {
+			this.currentPiece.drawGhost(this.renderer)
 			this.currentPiece.draw(this.renderer, this.boardDimensions)
 		}
 
@@ -221,7 +225,11 @@ export class TetrisBoard implements Game {
 			y: this.currentPiece.position.y - this.boardDimensions.y,
 		}
 
-		this.board.copy(this.currentPiece.shape, pieceBoardPosition)
+		this.board.copy({
+			matrix: this.currentPiece.shape,
+			offset: pieceBoardPosition,
+			tint: this.currentPiece.color,
+		})
 
 		let dstLine = pieceBoardPosition.x + this.currentPiece.leftSpaceSize
 		let srcLine = dstLine

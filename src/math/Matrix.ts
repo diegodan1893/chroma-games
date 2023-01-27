@@ -1,6 +1,13 @@
 import { Rect } from "./Rect"
 import { Vector2 } from "./Vector2"
 
+export interface CopyParameters {
+	matrix: Matrix
+	offset?: Vector2
+	dstRect?: Rect
+	tint?: number
+}
+
 export class Matrix {
 	/**
 	 * If set to a number, cells whose value equals to the mask won't be
@@ -67,11 +74,12 @@ export class Matrix {
 		this._data[y][x] = value
 	}
 
-	copy(
-		matrix: Matrix,
-		offset: Vector2 = { x: 0, y: 0 },
-		dstRect: Rect = { x: 0, y: 0, width: this.width, height: this.height }
-	) {
+	copy({
+		matrix,
+		offset = { x: 0, y: 0 },
+		dstRect = { x: 0, y: 0, width: this.width, height: this.height },
+		tint = 1,
+	}: CopyParameters) {
 		matrix._data.forEach((row, y) =>
 			row.forEach((value, x) => {
 				const destX = x + offset.x
@@ -82,7 +90,7 @@ export class Matrix {
 					destX < dstRect.x + dstRect.width &&
 					destY < dstRect.y + dstRect.height
 				) {
-					this._data[destY][destX] = value
+					this._data[destY][destX] = value * tint
 				}
 			})
 		)

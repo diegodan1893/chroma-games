@@ -1,6 +1,4 @@
-import { Vector2 } from "../math/Vector2"
-import { Rect } from "../math/Rect"
-import { Matrix } from "../math/Matrix"
+import { CopyParameters, Matrix } from "../math/Matrix"
 import { Renderer } from "./Renderer"
 
 const RAZER_CHROMA_URI = "http://localhost:54235/razer/chromasdk"
@@ -86,8 +84,8 @@ export class Chroma implements Renderer {
 		this.keyboard.clear()
 	}
 
-	copy(image: Matrix, offset?: Vector2, dstRect?: Rect) {
-		this.keyboard.copy(image, offset, dstRect)
+	copy(copyParameters: CopyParameters) {
+		this.keyboard.copy(copyParameters)
 	}
 
 	async present() {
