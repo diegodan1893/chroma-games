@@ -87,6 +87,8 @@ export class Matrix {
 
 				if (
 					value !== matrix.mask &&
+					destX >= dstRect.x &&
+					destY >= dstRect.y &&
 					destX < dstRect.x + dstRect.width &&
 					destY < dstRect.y + dstRect.height
 				) {
