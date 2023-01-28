@@ -41,7 +41,6 @@ export const useGameLoader = (
 		prepareGame()
 
 		return () => {
-			console.log("uninit")
 			if (chroma.current) {
 				chroma.current.uninitialize()
 			}
