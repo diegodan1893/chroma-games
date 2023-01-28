@@ -23,6 +23,7 @@ const GHOST_COLOR = 0x444444
 export class Piece {
 	private _position: Vector2
 	private orientation: number
+	private unrotatedShape: Matrix
 
 	constructor(
 		private board: TetrisBoard,
@@ -33,12 +34,9 @@ export class Piece {
 	) {
 		_shape.mask = 0
 
-		this._position = {
-			x: Math.floor(spawnArea.x + spawnArea.width / 2 - this.size / 2),
-			y: Math.floor(spawnArea.y + spawnArea.height / 2 - this.size / 2),
-		}
-
+		this._position = this.getSpawnPosition(spawnArea)
 		this.orientation = 0
+		this.unrotatedShape = this.shape
 	}
 
 	get position() {
@@ -102,10 +100,8 @@ export class Piece {
 
 	static createO(board: TetrisBoard, spawnArea: Rect) {
 		const shape = Matrix.from2dArray([
-			[0, 0, 0, 0],
-			[0, 1, 1, 0],
-			[0, 1, 1, 0],
-			[0, 0, 0, 0],
+			[1, 1],
+			[1, 1],
 		])
 
 		return new Piece(board, shape, O_COLOR, O_WALL_KICK_DATA, spawnArea)
@@ -165,6 +161,12 @@ export class Piece {
 		})
 	}
 
+	respawn(spawnArea: Rect) {
+		this._position = this.getSpawnPosition(spawnArea)
+		this.orientation = 0
+		this._shape = this.unrotatedShape
+	}
+
 	attemptMove(move: Vector2) {
 		const newPosition = {
 			x: this.position.x + move.x,
@@ -197,6 +199,13 @@ export class Piece {
 			newOrientation,
 			this.wallKickData.counterClockwise[newOrientation]
 		)
+	}
+
+	private getSpawnPosition(spawnArea: Rect) {
+		return {
+			x: Math.floor(spawnArea.x + spawnArea.width / 2 - this.size / 2),
+			y: Math.floor(spawnArea.y + spawnArea.height / 2 - this.size / 2),
+		}
 	}
 
 	private attemptRotation(

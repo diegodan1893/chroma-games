@@ -18,39 +18,46 @@ export class TetrisBoard implements Game {
 
 	private nextPieces: Piece[]
 	private currentPiece?: Piece
-	private bagPiece?: Piece
+	private holdPiece?: Piece
+	private pieceSpawnArea: Rect
 
 	private gravityIntervalMS: number
+	private canSwapHoldPiece: boolean
 
 	private interval?: ReturnType<typeof setTimeout>
 	private inputAbortController?: AbortController
 
 	constructor(
 		private renderer: Chroma,
-		private boardDimensions: Rect = { x: 2, y: 1, width: 11, height: 4 },
-		private bagPosition: Vector2 = { x: 18, y: 1 },
+		private boardArea: Rect = { x: 2, y: 1, width: 11, height: 4 },
+		private holdArea: Rect = { x: 18, y: 1, width: 4, height: 4 },
 		private initialGravityIntervalMS = 1000
 	) {
 		this.state = GameState.Stopped
-		this.board = new Matrix(
-			this.boardDimensions.width,
-			this.boardDimensions.height
-		)
+		this.board = new Matrix(this.boardArea.width, this.boardArea.height)
 		this.nextPieces = []
 		this.gravityIntervalMS = initialGravityIntervalMS
+		this.canSwapHoldPiece = true
+
+		this.pieceSpawnArea = {
+			x: this.boardArea.x + this.boardArea.width - 1,
+			y: this.boardArea.y,
+			width: 4,
+			height: this.boardArea.height,
+		}
 	}
 
 	query(position: Vector2) {
 		const outOfBounds =
-			position.x < this.boardDimensions.x ||
-			position.y < this.boardDimensions.y ||
-			position.y >= this.boardDimensions.y + this.boardDimensions.height
+			position.x < this.boardArea.x ||
+			position.y < this.boardArea.y ||
+			position.y >= this.boardArea.y + this.boardArea.height
 
 		return (
 			outOfBounds ||
 			this.board.get(
-				position.x - this.boardDimensions.x,
-				position.y - this.boardDimensions.y
+				position.x - this.boardArea.x,
+				position.y - this.boardArea.y
 			) !== 0
 		)
 	}
@@ -62,7 +69,7 @@ export class TetrisBoard implements Game {
 
 		this.nextPieces = []
 		this.currentPiece = undefined
-		this.bagPiece = undefined
+		this.holdPiece = undefined
 		this.gravityIntervalMS = this.initialGravityIntervalMS
 		this.board.clear()
 
@@ -72,6 +79,8 @@ export class TetrisBoard implements Game {
 		document.addEventListener(
 			"keydown",
 			(event) => {
+				// Prevent the tab key from switching the focus
+				event.preventDefault()
 				this.handleInput(event.key)
 			},
 			{
@@ -127,18 +136,18 @@ export class TetrisBoard implements Game {
 		this.renderer.copy({
 			matrix: this.board,
 			offset: {
-				x: this.boardDimensions.x,
-				y: this.boardDimensions.y,
+				x: this.boardArea.x,
+				y: this.boardArea.y,
 			},
 		})
 
 		if (this.currentPiece) {
-			this.currentPiece.drawGhost(this.renderer, this.boardDimensions)
-			this.currentPiece.draw(this.renderer, this.boardDimensions)
+			this.currentPiece.drawGhost(this.renderer, this.boardArea)
+			this.currentPiece.draw(this.renderer, this.boardArea)
 		}
 
-		if (this.bagPiece) {
-			this.bagPiece.draw(this.renderer)
+		if (this.holdPiece) {
+			this.holdPiece.draw(this.renderer)
 		}
 
 		this.renderer.present()
@@ -181,6 +190,28 @@ export class TetrisBoard implements Game {
 						this.currentPiece.attemptClockwiseRotation()
 						this.draw()
 						break
+					case "Tab":
+						if (this.canSwapHoldPiece) {
+							const previousHoldPiece = this.holdPiece
+
+							this.holdPiece = this.currentPiece
+							this.holdPiece.respawn(this.holdArea)
+
+							if (previousHoldPiece) {
+								this.currentPiece = previousHoldPiece
+								this.currentPiece.respawn(this.pieceSpawnArea)
+							} else {
+								this.currentPiece = this.getNextPiece()
+							}
+
+							this.canSwapHoldPiece = false
+							this.draw()
+
+							// Reset the interval so that the piece doesn't move
+							// just after the player swaps it
+							this.refreshUpdateInterval()
+							break
+						}
 				}
 			}
 		}
@@ -188,21 +219,14 @@ export class TetrisBoard implements Game {
 
 	private getNextPiece() {
 		if (!this.nextPieces.length) {
-			const spawnArea = {
-				x: this.boardDimensions.x + this.boardDimensions.width - 1,
-				y: this.boardDimensions.y,
-				width: 4,
-				height: this.boardDimensions.height,
-			}
-
 			this.nextPieces = shuffle([
-				Piece.createI(this, spawnArea),
-				Piece.createJ(this, spawnArea),
-				Piece.createL(this, spawnArea),
-				Piece.createO(this, spawnArea),
-				Piece.createS(this, spawnArea),
-				Piece.createT(this, spawnArea),
-				Piece.createZ(this, spawnArea),
+				Piece.createI(this, this.pieceSpawnArea),
+				Piece.createJ(this, this.pieceSpawnArea),
+				Piece.createL(this, this.pieceSpawnArea),
+				Piece.createO(this, this.pieceSpawnArea),
+				Piece.createS(this, this.pieceSpawnArea),
+				Piece.createT(this, this.pieceSpawnArea),
+				Piece.createZ(this, this.pieceSpawnArea),
 			])
 		}
 
@@ -229,8 +253,8 @@ export class TetrisBoard implements Game {
 		}
 
 		const pieceBoardPosition = {
-			x: this.currentPiece.position.x - this.boardDimensions.x,
-			y: this.currentPiece.position.y - this.boardDimensions.y,
+			x: this.currentPiece.position.x - this.boardArea.x,
+			y: this.currentPiece.position.y - this.boardArea.y,
 		}
 
 		this.board.copy({
@@ -242,13 +266,13 @@ export class TetrisBoard implements Game {
 		let dstLine = pieceBoardPosition.x + this.currentPiece.leftSpaceSize
 		let srcLine = dstLine
 
-		if (dstLine >= this.boardDimensions.width) {
+		if (dstLine >= this.boardArea.width) {
 			// A piece was placed fully out of bounds
 			this.state = GameState.GameOver
 		}
 
-		while (dstLine < this.boardDimensions.width) {
-			if (srcLine < this.boardDimensions.width) {
+		while (dstLine < this.boardArea.width) {
+			if (srcLine < this.boardArea.width) {
 				if (this.testLineClear(srcLine)) {
 					++srcLine
 				} else {
@@ -264,10 +288,11 @@ export class TetrisBoard implements Game {
 		}
 
 		this.currentPiece = undefined
+		this.canSwapHoldPiece = true
 	}
 
 	private testLineClear(line: number) {
-		for (let y = 0; y < this.boardDimensions.height; ++y) {
+		for (let y = 0; y < this.boardArea.height; ++y) {
 			if (this.board.get(line, y) === 0) {
 				return false
 			}
@@ -278,14 +303,14 @@ export class TetrisBoard implements Game {
 
 	private copyLine(srcLine: number, dstLine: number) {
 		if (srcLine !== dstLine) {
-			for (let y = 0; y < this.boardDimensions.height; ++y) {
+			for (let y = 0; y < this.boardArea.height; ++y) {
 				this.board.set(dstLine, y, this.board.get(srcLine, y))
 			}
 		}
 	}
 
 	private emptyLine(line: number) {
-		for (let y = 0; y < this.boardDimensions.height; ++y) {
+		for (let y = 0; y < this.boardArea.height; ++y) {
 			this.board.set(line, y, 0)
 		}
 	}
