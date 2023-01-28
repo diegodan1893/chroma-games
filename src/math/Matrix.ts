@@ -97,4 +97,25 @@ export class Matrix {
 			})
 		)
 	}
+
+	rotateClockwise() {
+		return this.rotate(
+			this._data.map((_, i) => this._data.map((row) => row[i]).reverse())
+		)
+	}
+
+	rotateCounterClockwise() {
+		return this.rotate(
+			this._data.map((_, i) =>
+				this._data.map((row) => row[row.length - 1 - i])
+			)
+		)
+	}
+
+	private rotate(newData: number[][]) {
+		const rotated = Matrix.from2dArray(newData, this.fillValue)
+
+		rotated.mask = this.mask
+		return rotated
+	}
 }

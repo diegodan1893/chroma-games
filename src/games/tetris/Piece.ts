@@ -3,6 +3,12 @@ import { Rect } from "../../math/Rect"
 import { Matrix } from "../../math/Matrix"
 import { Renderer } from "../../renderers/Renderer"
 import { TetrisBoard } from "./TetrisBoard"
+import {
+	WallKickData,
+	JLSTZ_WALL_KICK_DATA,
+	I_WALL_KICK_DATA,
+	O_WALL_KICK_DATA,
+} from "./WallKickData"
 
 // Piece colors
 const I_COLOR = 0xffff00
@@ -15,20 +21,28 @@ const Z_COLOR = 0x0000ff
 const GHOST_COLOR = 0x444444
 
 export class Piece {
-	public position: Vector2
+	private _position: Vector2
+	private orientation: number
 
 	constructor(
 		private board: TetrisBoard,
 		private _shape: Matrix,
 		private _color: number,
+		private wallKickData: WallKickData,
 		spawnArea: Rect
 	) {
 		_shape.mask = 0
 
-		this.position = {
+		this._position = {
 			x: Math.floor(spawnArea.x + spawnArea.width / 2 - this.size / 2),
 			y: Math.floor(spawnArea.y + spawnArea.height / 2 - this.size / 2),
 		}
+
+		this.orientation = 0
+	}
+
+	get position() {
+		return this._position
 	}
 
 	get size() {
@@ -63,7 +77,7 @@ export class Piece {
 			[0, 0, 1, 0],
 		])
 
-		return new Piece(board, shape, I_COLOR, spawnArea)
+		return new Piece(board, shape, I_COLOR, I_WALL_KICK_DATA, spawnArea)
 	}
 
 	static createJ(board: TetrisBoard, spawnArea: Rect) {
@@ -73,7 +87,7 @@ export class Piece {
 			[0, 1, 0],
 		])
 
-		return new Piece(board, shape, J_COLOR, spawnArea)
+		return new Piece(board, shape, J_COLOR, JLSTZ_WALL_KICK_DATA, spawnArea)
 	}
 
 	static createL(board: TetrisBoard, spawnArea: Rect) {
@@ -83,7 +97,7 @@ export class Piece {
 			[0, 1, 1],
 		])
 
-		return new Piece(board, shape, L_COLOR, spawnArea)
+		return new Piece(board, shape, L_COLOR, JLSTZ_WALL_KICK_DATA, spawnArea)
 	}
 
 	static createO(board: TetrisBoard, spawnArea: Rect) {
@@ -94,7 +108,7 @@ export class Piece {
 			[0, 0, 0, 0],
 		])
 
-		return new Piece(board, shape, O_COLOR, spawnArea)
+		return new Piece(board, shape, O_COLOR, O_WALL_KICK_DATA, spawnArea)
 	}
 
 	static createS(board: TetrisBoard, spawnArea: Rect) {
@@ -104,7 +118,7 @@ export class Piece {
 			[0, 0, 1],
 		])
 
-		return new Piece(board, shape, S_COLOR, spawnArea)
+		return new Piece(board, shape, S_COLOR, JLSTZ_WALL_KICK_DATA, spawnArea)
 	}
 
 	static createT(board: TetrisBoard, spawnArea: Rect) {
@@ -114,7 +128,7 @@ export class Piece {
 			[0, 1, 0],
 		])
 
-		return new Piece(board, shape, T_COLOR, spawnArea)
+		return new Piece(board, shape, T_COLOR, JLSTZ_WALL_KICK_DATA, spawnArea)
 	}
 
 	static createZ(board: TetrisBoard, spawnArea: Rect) {
@@ -124,7 +138,7 @@ export class Piece {
 			[0, 1, 0],
 		])
 
-		return new Piece(board, shape, Z_COLOR, spawnArea)
+		return new Piece(board, shape, Z_COLOR, JLSTZ_WALL_KICK_DATA, spawnArea)
 	}
 
 	draw(renderer: Renderer, dstRect?: Rect) {
@@ -136,7 +150,7 @@ export class Piece {
 		})
 	}
 
-	drawGhost(renderer: Renderer) {
+	drawGhost(renderer: Renderer, dstRect?: Rect) {
 		let ghostX = this.position.x
 
 		while (this.isValidPosition({ x: ghostX - 1, y: this.position.y })) {
@@ -146,6 +160,7 @@ export class Piece {
 		renderer.copy({
 			matrix: this.shape,
 			offset: { x: ghostX, y: this.position.y },
+			dstRect,
 			tint: GHOST_COLOR,
 		})
 	}
@@ -157,21 +172,58 @@ export class Piece {
 		}
 
 		if (this.isValidPosition(newPosition)) {
-			this.position = newPosition
+			this._position = newPosition
 			return true
 		}
 
 		return false
 	}
 
-	private isValidPosition(position: Vector2) {
-		for (let y = 0; y < this.shape.height; ++y) {
-			for (let x = 0; x < this.shape.width; ++x) {
+	attemptClockwiseRotation() {
+		const newOrientation = (this.orientation + 1) % 4
+
+		this.attemptRotation(
+			this.shape.rotateClockwise(),
+			newOrientation,
+			this.wallKickData.clockwise[newOrientation]
+		)
+	}
+
+	attemptCounterClockwiseRotation() {
+		const newOrientation = (this.orientation + 3) % 4
+
+		this.attemptRotation(
+			this.shape.rotateCounterClockwise(),
+			newOrientation,
+			this.wallKickData.counterClockwise[newOrientation]
+		)
+	}
+
+	private attemptRotation(
+		rotated: Matrix,
+		newOrientation: number,
+		wallKicks: Vector2[]
+	) {
+		for (const wallKick of wallKicks) {
+			const newPosition = {
+				x: this.position.x + wallKick.x,
+				y: this.position.y + wallKick.y,
+			}
+
+			if (this.isValidPosition(newPosition, rotated)) {
+				this._shape = rotated
+				this._position = newPosition
+				this.orientation = newOrientation
+				return
+			}
+		}
+	}
+
+	private isValidPosition(position: Vector2, shape = this.shape) {
+		for (let y = 0; y < shape.height; ++y) {
+			for (let x = 0; x < shape.width; ++x) {
 				const boardPosition = { x: x + position.x, y: y + position.y }
-				if (
-					this.shape.get(x, y) !== 0 &&
-					this.board.query(boardPosition)
-				) {
+				if (shape.get(x, y) !== 0 && this.board.query(boardPosition)) {
 					return false
 				}
 			}

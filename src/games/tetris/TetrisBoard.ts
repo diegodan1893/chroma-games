@@ -133,7 +133,7 @@ export class TetrisBoard implements Game {
 		})
 
 		if (this.currentPiece) {
-			this.currentPiece.drawGhost(this.renderer)
+			this.currentPiece.drawGhost(this.renderer, this.boardDimensions)
 			this.currentPiece.draw(this.renderer, this.boardDimensions)
 		}
 
@@ -171,6 +171,14 @@ export class TetrisBoard implements Game {
 							this.dropCurrentPiece()
 						}
 
+						this.draw()
+						break
+					case "Shift":
+						this.currentPiece.attemptCounterClockwiseRotation()
+						this.draw()
+						break
+					case "Control":
+						this.currentPiece.attemptClockwiseRotation()
 						this.draw()
 						break
 				}
