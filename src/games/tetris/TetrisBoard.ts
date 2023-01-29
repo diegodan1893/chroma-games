@@ -24,8 +24,10 @@ export class TetrisBoard implements Game {
 	private holdPiece?: Piece
 	private pieceSpawnArea: Rect
 
-	private gravityIntervalMS: number
 	private canSwapHoldPiece: boolean
+
+	private playerLevel: number
+	private linesToNextLevel: number
 
 	private interval?: ReturnType<typeof setTimeout>
 	private inputAbortController?: AbortController
@@ -34,14 +36,16 @@ export class TetrisBoard implements Game {
 		private renderer: Renderer,
 		private boardArea: Rect = { x: 2, y: 1, width: 11, height: 4 },
 		private holdArea: Rect = { x: 18, y: 1, width: 4, height: 4 },
-		private initialGravityIntervalMS = 1000,
-		private lineClearDelayMS = 350
+		private lineClearDelayMS = 350,
+		private maxPlayerLevel = 10,
+		private linesPerLevel = 10
 	) {
 		this.state = GameState.Stopped
 		this.board = new Matrix(this.boardArea.width, this.boardArea.height)
 		this.nextPieces = []
-		this.gravityIntervalMS = initialGravityIntervalMS
 		this.canSwapHoldPiece = true
+		this.playerLevel = 1
+		this.linesToNextLevel = this.linesPerLevel
 
 		this.pieceSpawnArea = {
 			x: this.boardArea.x + this.boardArea.width - 1,
@@ -74,7 +78,8 @@ export class TetrisBoard implements Game {
 		this.nextPieces = []
 		this.currentPiece = undefined
 		this.holdPiece = undefined
-		this.gravityIntervalMS = this.initialGravityIntervalMS
+		this.playerLevel = 1
+		this.linesToNextLevel = this.linesPerLevel
 		this.board.clear()
 
 		this.state = GameState.Playing
@@ -117,10 +122,16 @@ export class TetrisBoard implements Game {
 			clearInterval(this.interval)
 		}
 
+		// Formula taken from the 2009 Tetris Design Guideline
+		const gravityIntervalSeconds = Math.pow(
+			0.8 - (this.playerLevel - 1) * 0.007,
+			this.playerLevel - 1
+		)
+
 		this.interval = setInterval(async () => {
 			await this.update()
 			await this.draw()
-		}, this.gravityIntervalMS)
+		}, gravityIntervalSeconds * 1000)
 	}
 
 	private async update() {
@@ -281,6 +292,15 @@ export class TetrisBoard implements Game {
 
 		if (clearedLines.size > 0) {
 			await this.clearLinesWithAnimation(placementLine, clearedLines)
+
+			this.linesToNextLevel -= clearedLines.size
+			if (this.linesToNextLevel <= 0) {
+				this.playerLevel = Math.min(
+					this.playerLevel + 1,
+					this.maxPlayerLevel
+				)
+				this.linesToNextLevel = this.linesPerLevel
+			}
 		}
 
 		this.currentPiece = undefined
