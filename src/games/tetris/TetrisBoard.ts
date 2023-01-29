@@ -283,6 +283,9 @@ export class TetrisBoard implements Game {
 			this.state = GameState.GameOver
 		}
 
+		this.currentPiece = undefined
+		this.canSwapHoldPiece = true
+
 		const clearedLines = new Set<number>()
 
 		for (let line = placementLine; line < this.boardArea.width; ++line) {
@@ -303,9 +306,6 @@ export class TetrisBoard implements Game {
 				this.linesToNextLevel = this.linesPerLevel
 			}
 		}
-
-		this.currentPiece = undefined
-		this.canSwapHoldPiece = true
 	}
 
 	private async clearLinesWithAnimation(
