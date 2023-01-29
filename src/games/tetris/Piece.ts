@@ -27,12 +27,12 @@ export class Piece {
 
 	constructor(
 		private board: TetrisBoard,
-		private _shape: Matrix,
-		private _color: number,
+		private shape: Matrix,
+		private color: number,
 		private wallKickData: WallKickData,
 		spawnArea: Rect
 	) {
-		_shape.mask = 0
+		shape.mask = 0
 
 		this._position = this.getSpawnPosition(spawnArea)
 		this.orientation = 0
@@ -45,14 +45,6 @@ export class Piece {
 
 	get size() {
 		return this.shape.height
-	}
-
-	get shape() {
-		return this._shape
-	}
-
-	get color() {
-		return this._color
 	}
 
 	get leftSpaceSize() {
@@ -161,10 +153,18 @@ export class Piece {
 		})
 	}
 
+	drawToMatrix(matrix: Matrix, offset: Vector2) {
+		matrix.copy({
+			matrix: this.shape,
+			offset: offset,
+			tint: this.color,
+		})
+	}
+
 	respawn(spawnArea: Rect) {
 		this._position = this.getSpawnPosition(spawnArea)
 		this.orientation = 0
-		this._shape = this.unrotatedShape
+		this.shape = this.unrotatedShape
 	}
 
 	attemptMove(move: Vector2) {
@@ -220,7 +220,7 @@ export class Piece {
 			}
 
 			if (this.isValidPosition(newPosition, rotated)) {
-				this._shape = rotated
+				this.shape = rotated
 				this._position = newPosition
 				this.orientation = newOrientation
 				return

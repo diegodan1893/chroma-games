@@ -2,9 +2,12 @@ import { Vector2 } from "../../math/Vector2"
 import { Matrix } from "../../math/Matrix"
 import { Rect } from "../../math/Rect"
 import { shuffle } from "../../math/Random"
-import { Chroma } from "../../renderers/Chroma"
+import { wait } from "../../util/time"
+import { Renderer } from "../../renderers/Renderer"
 import { Game } from "../common/Game"
 import { Piece } from "./Piece"
+
+const LINE_CLEAR_FLASH_COLOR = 0xffffff
 
 enum GameState {
 	Stopped,
@@ -28,10 +31,11 @@ export class TetrisBoard implements Game {
 	private inputAbortController?: AbortController
 
 	constructor(
-		private renderer: Chroma,
+		private renderer: Renderer,
 		private boardArea: Rect = { x: 2, y: 1, width: 11, height: 4 },
 		private holdArea: Rect = { x: 18, y: 1, width: 4, height: 4 },
-		private initialGravityIntervalMS = 1000
+		private initialGravityIntervalMS = 1000,
+		private lineClearDelayMS = 350
 	) {
 		this.state = GameState.Stopped
 		this.board = new Matrix(this.boardArea.width, this.boardArea.height)
@@ -62,7 +66,7 @@ export class TetrisBoard implements Game {
 		)
 	}
 
-	startGame() {
+	async startGame() {
 		if (this.state !== GameState.Stopped) {
 			this.stopGame()
 		}
@@ -78,10 +82,10 @@ export class TetrisBoard implements Game {
 		this.inputAbortController = new AbortController()
 		document.addEventListener(
 			"keydown",
-			(event) => {
+			async (event) => {
 				// Prevent the tab key from switching the focus
 				event.preventDefault()
-				this.handleInput(event.key)
+				await this.handleInput(event.key)
 			},
 			{
 				signal: this.inputAbortController.signal,
@@ -90,7 +94,7 @@ export class TetrisBoard implements Game {
 
 		// Perform a first draw so that the state of the new game
 		// is reflected immediately without waiting for the interval
-		this.draw()
+		await this.draw()
 
 		this.refreshUpdateInterval()
 	}
@@ -113,25 +117,25 @@ export class TetrisBoard implements Game {
 			clearInterval(this.interval)
 		}
 
-		this.interval = setInterval(() => {
-			this.update()
-			this.draw()
+		this.interval = setInterval(async () => {
+			await this.update()
+			await this.draw()
 		}, this.gravityIntervalMS)
 	}
 
-	private update() {
+	private async update() {
 		if (this.state !== GameState.Playing) {
 			return
 		}
 
 		if (!this.currentPiece) {
 			this.currentPiece = this.getNextPiece()
+		} else {
+			await this.dropCurrentPiece()
 		}
-
-		this.dropCurrentPiece()
 	}
 
-	private draw() {
+	private async draw() {
 		this.renderer.clear()
 		this.renderer.copy({
 			matrix: this.board,
@@ -150,10 +154,10 @@ export class TetrisBoard implements Game {
 			this.holdPiece.draw(this.renderer)
 		}
 
-		this.renderer.present()
+		await this.renderer.present()
 	}
 
-	private handleInput(key: string) {
+	private async handleInput(key: string) {
 		if (key === "Backspace") {
 			this.startGame()
 		} else {
@@ -161,15 +165,15 @@ export class TetrisBoard implements Game {
 				switch (key) {
 					case "ArrowUp":
 						this.currentPiece.attemptMove({ x: 0, y: -1 })
-						this.draw()
+						await this.draw()
 						break
 					case "ArrowDown":
 						this.currentPiece.attemptMove({ x: 0, y: +1 })
-						this.draw()
+						await this.draw()
 						break
 					case "ArrowLeft":
-						this.dropCurrentPiece()
-						this.draw()
+						await this.dropCurrentPiece()
+						await this.draw()
 
 						// Reset the interval so that the piece doesn't move
 						// again just after the player moves it
@@ -177,18 +181,18 @@ export class TetrisBoard implements Game {
 						break
 					case "ArrowRight":
 						while (this.currentPiece) {
-							this.dropCurrentPiece()
+							await this.dropCurrentPiece()
 						}
 
-						this.draw()
+						await this.draw()
 						break
 					case "Shift":
 						this.currentPiece.attemptCounterClockwiseRotation()
-						this.draw()
+						await this.draw()
 						break
 					case "Control":
 						this.currentPiece.attemptClockwiseRotation()
-						this.draw()
+						await this.draw()
 						break
 					case "Tab":
 						if (this.canSwapHoldPiece) {
@@ -205,7 +209,7 @@ export class TetrisBoard implements Game {
 							}
 
 							this.canSwapHoldPiece = false
-							this.draw()
+							await this.draw()
 
 							// Reset the interval so that the piece doesn't move
 							// just after the player swaps it
@@ -235,7 +239,7 @@ export class TetrisBoard implements Game {
 		return this.nextPieces.pop()!
 	}
 
-	private dropCurrentPiece() {
+	private async dropCurrentPiece() {
 		if (!this.currentPiece) {
 			return
 		}
@@ -243,11 +247,11 @@ export class TetrisBoard implements Game {
 		const pieceMoved = this.currentPiece.attemptMove({ x: -1, y: 0 })
 
 		if (!pieceMoved) {
-			this.placeCurrentPiece()
+			await this.placeCurrentPiece()
 		}
 	}
 
-	private placeCurrentPiece() {
+	private async placeCurrentPiece() {
 		if (!this.currentPiece) {
 			return
 		}
@@ -257,23 +261,82 @@ export class TetrisBoard implements Game {
 			y: this.currentPiece.position.y - this.boardArea.y,
 		}
 
-		this.board.copy({
-			matrix: this.currentPiece.shape,
-			offset: pieceBoardPosition,
-			tint: this.currentPiece.color,
-		})
+		this.currentPiece.drawToMatrix(this.board, pieceBoardPosition)
 
-		let dstLine = pieceBoardPosition.x + this.currentPiece.leftSpaceSize
-		let srcLine = dstLine
+		const placementLine =
+			pieceBoardPosition.x + this.currentPiece.leftSpaceSize
 
-		if (dstLine >= this.boardArea.width) {
+		if (placementLine >= this.boardArea.width) {
 			// A piece was placed fully out of bounds
 			this.state = GameState.GameOver
 		}
 
+		const clearedLines = new Set<number>()
+
+		for (let line = placementLine; line < this.boardArea.width; ++line) {
+			if (this.testLineClear(line)) {
+				clearedLines.add(line)
+			}
+		}
+
+		if (clearedLines.size > 0) {
+			await this.clearLinesWithAnimation(placementLine, clearedLines)
+		}
+
+		this.currentPiece = undefined
+		this.canSwapHoldPiece = true
+	}
+
+	private async clearLinesWithAnimation(
+		placementLine: number,
+		clearedLines: Set<number>
+	) {
+		// Pause the game while we play the animation
+		if (this.interval) {
+			clearInterval(this.interval)
+		}
+
+		// Draw the board in its current state
+		await this.draw()
+
+		// Draw a flash over the lines that are going to be cleared
+		const lineMatrix = new Matrix(1, this.boardArea.height, 1)
+
+		clearedLines.forEach((line) => {
+			this.renderer.copy({
+				matrix: lineMatrix,
+				offset: {
+					x: this.boardArea.x + line,
+					y: this.boardArea.y,
+				},
+				tint: LINE_CLEAR_FLASH_COLOR,
+			})
+		})
+
+		this.renderer.present()
+		await wait(this.lineClearDelayMS / 2)
+
+		clearedLines.forEach((line) => {
+			this.renderer.copy({
+				matrix: lineMatrix,
+				offset: {
+					x: this.boardArea.x + line,
+					y: this.boardArea.y,
+				},
+				tint: 0,
+			})
+		})
+
+		this.renderer.present()
+		await wait(this.lineClearDelayMS / 2)
+
+		// Update the board
+		let dstLine = placementLine
+		let srcLine = dstLine
+
 		while (dstLine < this.boardArea.width) {
 			if (srcLine < this.boardArea.width) {
-				if (this.testLineClear(srcLine)) {
+				if (clearedLines.has(srcLine)) {
 					++srcLine
 				} else {
 					this.copyLine(srcLine, dstLine)
@@ -287,8 +350,8 @@ export class TetrisBoard implements Game {
 			}
 		}
 
-		this.currentPiece = undefined
-		this.canSwapHoldPiece = true
+		// Resume the game
+		this.refreshUpdateInterval()
 	}
 
 	private testLineClear(line: number) {
