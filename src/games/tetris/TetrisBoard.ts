@@ -78,6 +78,7 @@ export class TetrisBoard implements Game {
 		this.nextPieces = []
 		this.currentPiece = undefined
 		this.holdPiece = undefined
+		this.canSwapHoldPiece = true
 		this.playerLevel = 1
 		this.linesToNextLevel = this.linesPerLevel
 		this.board.clear()
