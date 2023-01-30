@@ -2,13 +2,18 @@ import classNames from "classnames"
 import { ReactNode } from "react"
 
 interface KeyboardPromptProps {
+	className?: string
 	children: ReactNode
 }
 
-export const KeyboardPrompt = ({ children }: KeyboardPromptProps) => {
+export const KeyboardPrompt = ({
+	className,
+	children,
+}: KeyboardPromptProps) => {
 	return (
 		<span
 			className={classNames(
+				"inline-block",
 				"px-1.5",
 				"py-1",
 				"align-middle",
@@ -16,8 +21,9 @@ export const KeyboardPrompt = ({ children }: KeyboardPromptProps) => {
 				"uppercase",
 				"text-xs",
 				"font-light",
-				"bg-gray-800",
-				"text-white"
+				"bg-gray-500",
+				"text-white",
+				className
 			)}
 		>
 			{children}
