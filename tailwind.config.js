@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 
 const plugin = require("tailwindcss/plugin")
+const {
+	default: flattenColorPalette,
+} = require("tailwindcss/lib/util/flattenColorPalette")
 
 module.exports = {
 	content: ["./{public,src}/**/*.{html,js,jsx,ts,tsx}"],
@@ -29,7 +32,7 @@ module.exports = {
 						textShadow: `0 0 25px ${value}, 0 0 25px ${value}, 0 0 25px ${value}`,
 					}),
 				},
-				{ values: theme("colors") }
+				{ values: flattenColorPalette(theme("colors")) }
 			)
 		}),
 	],
