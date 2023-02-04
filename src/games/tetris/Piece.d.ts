@@ -1,0 +1,36 @@
+import { Vector2 } from "../../math/Vector2";
+import { Rect } from "../../math/Rect";
+import { Matrix } from "../../math/Matrix";
+import { Renderer } from "../../renderers/Renderer";
+import { TetrisBoard } from "./TetrisBoard";
+import { WallKickData } from "./WallKickData";
+export declare class Piece {
+    private board;
+    private shape;
+    private color;
+    private wallKickData;
+    private _position;
+    private orientation;
+    private unrotatedShape;
+    constructor(board: TetrisBoard, shape: Matrix, color: number, wallKickData: WallKickData, spawnArea: Rect);
+    get position(): Vector2;
+    get size(): number;
+    get leftSpaceSize(): number;
+    static createI(board: TetrisBoard, spawnArea: Rect): Piece;
+    static createJ(board: TetrisBoard, spawnArea: Rect): Piece;
+    static createL(board: TetrisBoard, spawnArea: Rect): Piece;
+    static createO(board: TetrisBoard, spawnArea: Rect): Piece;
+    static createS(board: TetrisBoard, spawnArea: Rect): Piece;
+    static createT(board: TetrisBoard, spawnArea: Rect): Piece;
+    static createZ(board: TetrisBoard, spawnArea: Rect): Piece;
+    draw(renderer: Renderer, dstRect?: Rect): void;
+    drawGhost(renderer: Renderer, dstRect?: Rect): void;
+    drawToMatrix(matrix: Matrix, offset: Vector2): void;
+    respawn(spawnArea: Rect): void;
+    attemptMove(move: Vector2): boolean;
+    attemptClockwiseRotation(): void;
+    attemptCounterClockwiseRotation(): void;
+    private getSpawnPosition;
+    private attemptRotation;
+    private isValidPosition;
+}
