@@ -67,7 +67,7 @@ const PageBody = () => {
 				<GameButton path="/tetris" title="Tetris" icon={tetrisIcon} />
 			</div>
 			<a
-				href="https://github.com/diegodan1893/razer-snake"
+				href="https://github.com/diegodan1893/chroma-games"
 				className="link"
 			>
 				View Source Code {">"}

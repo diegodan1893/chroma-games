@@ -31,7 +31,7 @@ const PageBody = ({ bodyComponent, loading, error }: PageBodyProps) => {
 					More Games {">"}
 				</Link>
 				<a
-					href="https://github.com/diegodan1893/razer-snake"
+					href="https://github.com/diegodan1893/chroma-games"
 					className="link"
 				>
 					View Source Code {">"}
