@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Game } from "../../games/common/Game"
-import { Chroma } from "../../chroma/Chroma"
+import { Chroma } from "../../renderers/Chroma"
 
 type GameFactory = (chroma: Chroma) => Game
 
@@ -41,7 +41,6 @@ export const useGameLoader = (
 		prepareGame()
 
 		return () => {
-			console.log("uninit")
 			if (chroma.current) {
 				chroma.current.uninitialize()
 			}

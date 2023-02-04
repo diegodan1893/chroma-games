@@ -1,7 +1,25 @@
 import "./main.css"
 
-import { SnakePage } from "./snake/SnakePage"
+import { createHashRouter, RouterProvider } from "react-router-dom"
+import { SnakePage } from "./games/SnakePage"
+import { TetrisPage } from "./games/TetrisPage"
+import { GameMenu } from "./games/GameMenu"
+
+const router = createHashRouter([
+	{
+		path: "/",
+		element: <GameMenu />,
+	},
+	{
+		path: "/snake",
+		element: <SnakePage />,
+	},
+	{
+		path: "/tetris",
+		element: <TetrisPage />,
+	},
+])
 
 export const App = () => {
-	return <SnakePage />
+	return <RouterProvider router={router} />
 }

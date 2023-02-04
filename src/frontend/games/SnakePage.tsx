@@ -1,4 +1,4 @@
-import { Chroma } from "../../chroma/Chroma"
+import { Chroma } from "../../renderers/Chroma"
 import { SnakeBoard } from "../../games/snake/SnakeBoard"
 import { GamePage } from "../common/GamePage"
 import { KeyboardPrompt } from "../common/KeyboardPrompt"
@@ -39,7 +39,7 @@ const PageBody = () => {
 	)
 }
 
-const createGame = (chroma: Chroma) => new SnakeBoard(chroma, 11, 4, 2, 1)
+const createGame = (chroma: Chroma) => new SnakeBoard(chroma)
 
 export const SnakePage = () => {
 	const { loading, error } = useGameLoader(

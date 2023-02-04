@@ -1,4 +1,5 @@
-import { Matrix } from "../math/Matrix"
+import { CopyParameters, Matrix } from "../math/Matrix"
+import { Renderer } from "./Renderer"
 
 const RAZER_CHROMA_URI = "http://localhost:54235/razer/chromasdk"
 
@@ -18,7 +19,7 @@ interface RequestOptions {
 	body?: object
 }
 
-export class Chroma {
+export class Chroma implements Renderer {
 	private uri?: string
 	private sessionId?: number
 	private interval?: ReturnType<typeof setTimeout>
@@ -79,11 +80,15 @@ export class Chroma {
 		}
 	}
 
-	async drawKeyboard(image: Matrix, offsetX: number, offsetY: number) {
+	clear() {
 		this.keyboard.clear()
+	}
 
-		this.keyboard.copy(image, offsetX, offsetY)
+	copy(copyParameters: CopyParameters) {
+		this.keyboard.copy(copyParameters)
+	}
 
+	async present() {
 		await this.request({
 			path: "/keyboard",
 			method: "PUT",
