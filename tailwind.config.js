@@ -29,7 +29,7 @@ module.exports = {
 			matchUtilities(
 				{
 					"text-glow": (value) => ({
-						textShadow: `0 0 25px ${value}, 0 0 25px ${value}, 0 0 25px ${value}`,
+						textShadow: `0 0 25px ${value}, 0 0 25px ${value}, 0 0 25px ${value}, 0 0 25px ${value}`,
 					}),
 				},
 				{ values: flattenColorPalette(theme("colors")) }

@@ -44,6 +44,11 @@ module.exports = {
 					},
 				],
 			},
+			{
+				test: /\.(png|jp(e*)g|svg|gif)$/,
+				exclude: /node_modules/,
+				loader: "file-loader",
+			},
 		],
 	},
 
