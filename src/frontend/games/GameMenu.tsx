@@ -1,9 +1,10 @@
+import snakeIcon from "../../assets/snake.png"
+import tetrisIcon from "../../assets/tetris.png"
+
 import { Link } from "react-router-dom"
 import { BasePage } from "../common/BasePage"
 import { TitleKeys } from "../common/TitleKeys"
-
-import snakeIcon from "../../assets/snake.png"
-import tetrisIcon from "../../assets/tetris.png"
+import classNames from "classnames"
 
 const PageTitle = () => {
 	return (
@@ -41,7 +42,17 @@ const GameButton = ({ path, title, icon }: GameButtonProps) => {
 	return (
 		<Link
 			to={path}
-			className="flex flex-col items-center space-y-3 p-3 rounded-xl transition-colors bg-black hover:bg-razer-mid-gray"
+			className={classNames(
+				"flex",
+				"flex-col",
+				"items-center",
+				"space-y-3",
+				"p-3",
+				"rounded-xl",
+				"transition-colors",
+				"bg-black",
+				"hover:bg-razer-mid-gray"
+			)}
 		>
 			<img
 				src={icon}
