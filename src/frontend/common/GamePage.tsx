@@ -12,16 +12,23 @@ interface PageBodyProps {
 const PageBody = ({ bodyComponent, loading, error }: PageBodyProps) => {
 	return (
 		<>
-			<div className="flex h-60 items-center">
+			<div className="flex flex-col h-60 justify-center space-y-5">
 				{loading ? (
 					<Spinner />
 				) : error ? (
-					<p>
-						We were unable to start a connection with Razer Synapse
-						<br />
-						Make sure Razer Synapse is installed and running and try
-						again
-					</p>
+					<>
+						<p>
+							We were unable to start a connection with Razer
+							Synapse
+							<br />
+							Make sure Razer Synapse is installed and running and
+							try again
+						</p>
+						<p>
+							Brave and some ad blockers can block connections to
+							Synapse, you may need to disable tracking protection
+						</p>
+					</>
 				) : (
 					bodyComponent
 				)}
